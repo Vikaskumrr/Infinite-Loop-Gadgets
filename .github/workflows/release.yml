@@ -1,5 +1,4 @@
 name: Release
-name: Release
 
 on:
   push: {} # run on any push to any branch
