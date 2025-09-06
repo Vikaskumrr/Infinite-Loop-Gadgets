@@ -1,7 +1,7 @@
 name: Release
 
 on:
-  push: {} # run on any push to any branch
+  push: {}
 
 permissions:
   contents: write
@@ -34,35 +34,29 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Bump patch version (safe, no lifecycle scripts) and push
+      - name: Show status for debugging
+        run: |
+          git status --porcelain || true
+          git rev-parse --is-shallow-repository || true
+          git fetch --prune || true
+
+      - name: Bump patch version (safe, single-line node) and push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # show any unexpected changes for debugging
-          git status --porcelain || true
-          git rev-parse --is-shallow-repository && echo "shallow repo" || true
+          # increment patch version in package.json using a single-line node command (avoids multiline quoting issues)
+          NEW_VER=$(node -e 'const fs = require("fs"); const p = JSON.parse(fs.readFileSync("package.json","utf8")); const parts = p.version.split(".").map(Number); parts[2] = (parts[2] || 0) + 1; p.version = parts.join("."); fs.writeFileSync("package.json", JSON.stringify(p, null, 2) + "\n"); console.log(p.version);')
+          echo "Bumped to $NEW_VER"
 
-          # increment patch version in package.json (no npm lifecycle scripts run)
-          NEW_VER=$(node -e "
-            const fs = require('fs');
-            const p = JSON.parse(fs.readFileSync('package.json','utf8'));
-            const parts = p.version.split('.').map(Number);
-            parts[2] = (parts[2] || 0) + 1;
-            p.version = parts.join('.');
-            fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\\n');
-            console.log(p.version);
-          ")
-          echo \"Bumped to $NEW_VER\"
-
-          # update package-lock.json only (no installs)
+          # update package-lock.json without running lifecycle scripts
           npm install --package-lock-only
 
-          # if there are changes, commit & push
+          # commit and push if package files changed
           if git diff --quiet -- package.json package-lock.json; then
             echo "No version changes to commit."
           else
             git add package.json package-lock.json
-            git commit -m \"chore(release): bump version to ${NEW_VER} [skip ci]\"
+            git commit -m "chore(release): bump version to ${NEW_VER} [skip ci]" || true
             git push origin HEAD --follow-tags
             echo "Pushed version ${NEW_VER}"
           fi
