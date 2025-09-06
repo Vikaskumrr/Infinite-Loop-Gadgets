@@ -1,11 +1,6 @@
 import React from 'react';
+import '../styles/app.scss'; // updated import
 
-const ExampleComponent: React.FC = () => {
-    return (
-        <div>
-            <h1>Your one stop for gadgets !!</h1>
-        </div>
-    );
-};
-
-export default ExampleComponent;
+export default function ExampleComponent() {
+  return <div className="card">Example</div>;
+}

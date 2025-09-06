@@ -1,14 +1,15 @@
 import React from 'react';
-import './styles/app.css';
-import ExampleComponent from './components/ExampleComponent';
+import HomePage from './components/HomePage/HomePage';
+import './styles/app.scss';
 
-const App: React.FC = () => {
+function App(): JSX.Element {
     return (
-        <div className="App">
-            <h1>Welcome to Infinite Loop Gadgets</h1>
-            <ExampleComponent />
+        <div className="app">
+            <main className="content">
+                <HomePage />
+            </main>
         </div>
     );
-};
+}
 
 export default App;
