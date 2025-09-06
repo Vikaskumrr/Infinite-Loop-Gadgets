@@ -7,8 +7,7 @@
     "build": "react-scripts build",
     "test": "jest --passWithNoTests --testPathIgnorePatterns \"/node_modules/\"",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
-    "eject": "react-scripts eject",
-    "version": "npm version patch"
+    "eject": "react-scripts eject"
   },
   "dependencies": {
     "core-js-pure": "^3.26.1",
