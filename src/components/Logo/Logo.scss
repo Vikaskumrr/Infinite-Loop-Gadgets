@@ -1,0 +1,20 @@
+.logo {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1e293b; /* slate-800 */
+  display: inline-block;
+  user-select: none;
+
+  &:hover,
+  &:focus {
+    color: #0ea5e9; /* sky-500 */
+    outline: none;
+    text-decoration: none;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(14,165,233,0.16);
+    border-radius: 4px;
+  }
+}
