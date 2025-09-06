@@ -1,41 +1,56 @@
-name: release
+name: Release
 
 on:
-  push:
-    branches:
-      - master
+  push: {} # run on any push to any branch
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-version
+  cancel-in-progress: true
 
 jobs:
-  version:
+  bump-version:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Use Node
+      - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22.19.0'
           cache: 'npm'
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm ci
 
-      - name: Configure git
+      - name: Configure Git for push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Build the project
-        run: npm run build
-
-      - name: Bump version (no tag) and push
+      - name: Bump patch version and push if changed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # update package.json and package-lock.json, avoid failing on dirty repo
-          npm version patch --no-git-tag-version -m "Upgrade version to %s [skip ci]"
-          git add package.json package-lock.json || true
-          git commit -m "chore(release): bump version [skip ci]" || echo "no changes to commit"
-          git push origin HEAD:main --follow-tags
+          # ensure full history for versioning operations
+          git fetch --prune --unshallow || true
+
+          # update package.json/package-lock.json version without creating tag
+          npm version patch --no-git-tag-version
+
+          # check for changes and commit+push if any
+          if git diff --quiet -- package.json package-lock.json; then
+            echo "No version changes detected; skipping commit."
+          else
+            NEW_VER=$(node -p "require('./package.json').version")
+            git add package.json package-lock.json || true
+            git commit -m "chore(release): bump version to ${NEW_VER} [skip ci]" || echo "commit failed or no changes to commit"
+            git push origin HEAD --follow-tags
+            echo "Version bumped to ${NEW_VER} and pushed."
+          fi
