@@ -37,7 +37,7 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language }) => {
   };
 
   const calculateTotal = () => {
-    return products.reduce((acc, item) => acc + parseFloat(item.price.replace(/[^0-9.-]+/g, "")), 0);
+    return products.reduce((acc, item) => acc + item.price, 0);
   };
 
   return (
@@ -53,17 +53,17 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language }) => {
           <ul className="order-items-list">
             {products.map((item, index) => (
               <li key={index} className="order-item">
-                <img src={item.image} alt={item.name} className="order-item-image" />
+                <img src={item.productImage} alt={item.name} className="order-item-image" />
                 <div className="order-item-info">
                   <span className="order-item-name">{item.name}</span>
-                  <span className="order-item-price">{item.price}</span>
+                  <span className="order-item-price">${item.price.toFixed(2)}</span>
                 </div>
               </li>
             ))}
           </ul>
           <div className="order-total">
             <span className="total-label">{getText('total')}:</span>
-            <span className="total-price">${calculateTotal().toLocaleString()}</span>
+            <span className="total-price">${calculateTotal().toFixed(2)}</span>
           </div>
         </div>
       </div>

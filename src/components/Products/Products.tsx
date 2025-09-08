@@ -1,17 +1,15 @@
 import React from 'react';
 import './Products.scss';
 
-// Define the type for a product object
+// Define the type for a product object based on the new API data
 interface ProductProps {
   product: {
     name: string;
-    model: string;
-    price: string;
-    location: string;
-    image: string;
-    year: string;
+    brand: string;
+    price: number;
+    rating: number;
+    productImage: string; // Changed from 'image'
     color: string;
-    ram: string;
   };
   language: string;
   onDetailsClick: () => void;
@@ -21,21 +19,21 @@ const Product: React.FC<ProductProps> = ({ product, language, onDetailsClick }) 
   // A simple translation map for the captions
   const captions: { [key: string]: { [key: string]: string } } = {
     en: {
-      year: 'Year',
+      brand: 'Brand',
       color: 'Color',
-      ram: 'RAM',
+      rating: 'Rating',
       fullDetails: 'Full details →'
     },
     es: {
-      year: 'Año',
+      brand: 'Marca',
       color: 'Color',
-      ram: 'RAM',
+      rating: 'Calificación',
       fullDetails: 'Detalles completos →'
     },
     fr: {
-      year: 'Année',
-      color: 'Couleur',
-      ram: 'RAM',
+      brand: 'Marque',
+      colour: 'Colour',
+      rating: 'Évaluation',
       fullDetails: 'Détails complets →'
     }
   };
@@ -47,24 +45,25 @@ const Product: React.FC<ProductProps> = ({ product, language, onDetailsClick }) 
   return (
     <section className="tech-main">
       <div className="tech-header">
-        <h1>{product.name} <span className="model">{product.model}</span></h1>
+        <h1>{product?.name}</h1>
         <div className="price-location">
-          <span className="price">{product.price}</span>
-          <span className="location"> {product.location}</span>
+          <span className="price">${product?.price.toFixed(2)}</span>
         </div>
       </div>
-      <img src={product.image} alt={product.name} className="tech-image"/>
+      <img src={product?.productImage} alt={product?.name} className="tech-image" />
       <div className="tech-details">
         <div>
-          <strong>{product.year}</strong> <div className="caption">{getCaption('year')}</div>
+          <strong>{product?.brand}</strong> <div className="caption">{getCaption('brand')}</div>
         </div>
         <div>
-          <strong>{product.color}</strong> <div className="caption">{getCaption('color')}</div>
+          <strong>{product?.color}</strong> <div className="caption">{getCaption('color')}</div>
         </div>
         <div>
-          <strong>{product.ram}</strong> <div className="caption">{getCaption('ram')}</div>
+          <strong>{product?.rating} ★</strong> <div className="caption">{getCaption('rating')}</div>
         </div>
-        <button className="details-btn" onClick={onDetailsClick}>{getCaption('fullDetails')}</button>
+        <button className="details-btn" onClick={onDetailsClick}>
+          {getCaption('fullDetails')}
+        </button>
       </div>
     </section>
   );

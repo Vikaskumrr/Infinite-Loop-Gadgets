@@ -1,19 +1,22 @@
 import React from 'react';
 import './ProductDetails.scss';
 
+interface Review {
+  user: string;
+  stars: number;
+  comment: string;
+}
+
 interface ProductDetailsProps {
   product: {
     name: string;
-    model: string;
-    price: string;
-    location: string;
-    image: string;
-    year: string;
-    color: string;
-    ram: string;
+    brand: string;
+    price: number;
     description: string;
+    productImage: string;
     rating: number;
-    specifications: { key: string; value: string }[];
+    reviews?: Review[];
+    specifications: { [key: string]: string };
   };
   onClose: () => void;
   onAddToCart: (product: any) => void;
@@ -26,25 +29,28 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
     en: {
       description: 'Description',
       rating: 'Rating',
-      specifications: 'Specifications',
       addToCart: 'Add to Cart',
       buyNow: 'Buy Now',
+      reviews: 'Customer Reviews',
+      specifications: 'Specifications',
       close: 'Close',
     },
     es: {
       description: 'Descripción',
       rating: 'Calificación',
-      specifications: 'Especificaciones',
       addToCart: 'Añadir al carrito',
       buyNow: 'Comprar ahora',
+      reviews: 'Reseñas de clientes',
+      specifications: 'Especificaciones',
       close: 'Cerrar',
     },
     fr: {
       description: 'La description',
       rating: 'Évaluation',
-      specifications: 'Caractéristiques',
       addToCart: 'Ajouter au panier',
       buyNow: 'Acheter maintenant',
+      reviews: 'Avis des clients',
+      specifications: 'Spécifications',
       close: 'Fermer',
     },
   };
@@ -53,14 +59,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
     return (translations[language] && translations[language][key]) || translations.en[key];
   };
 
-  const renderStars = (rating: number) => {
-    const stars = [];
-    for (let i = 0; i < 5; i++) {
-      stars.push(
-        <span key={i} className={`star ${i < rating ? 'filled' : ''}`}>★</span>
-      );
-    }
-    return stars;
+  const renderStars = (starCount: number) => {
+    const filledStars = '★'.repeat(starCount);
+    const emptyStars = '☆'.repeat(5 - starCount);
+    return filledStars + emptyStars;
   };
 
   return (
@@ -70,33 +72,44 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
           &times;
         </button>
         <div className="product-details-content">
-          <div className="image-section">
-            <img src={product.image} alt={product.name} />
-          </div>
-          <div className="info-section">
-            <h2>{product.name} <span className="model">{product.model}</span></h2>
-            <div className="price">{product.price}</div>
+          <img src={product.productImage} alt={product.name} className="product-image" />
+          <div className="product-info">
+            <h2>{product.name}</h2>
+            <p className="product-brand">{product.brand}</p>
+            <p className="product-price">${product.price.toFixed(2)}</p>
             <div className="rating">
-              <span className="rating-label">{getText('rating')}:</span>
-              <div className="stars">
-                {renderStars(product.rating)}
-              </div>
+              {getText('rating')}: {product.rating} ★
             </div>
             <div className="description">
               <h3>{getText('description')}</h3>
               <p>{product.description}</p>
             </div>
-            <div className="specifications">
-              <h3>{getText('specifications')}</h3>
-              <ul>
-                {product.specifications.map((spec, index) => (
-                  <li key={index}>
-                    <strong>{spec.key}:</strong> {spec.value}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="button-group">
+            {product.specifications && Object.keys(product.specifications).length > 0 && (
+              <div className="specifications">
+                <h3>{getText('specifications')}</h3>
+                <ul>
+                  {Object.entries(product.specifications).map(([key, value], index) => (
+                    <li key={index}>
+                      <strong>{key}:</strong> {value}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {product.reviews && product.reviews.length > 0 && (
+              <div className="reviews">
+                <h3>{getText('reviews')}</h3>
+                <ul>
+                  {product.reviews.map((review, index) => (
+                    <li key={index}>
+                      <span className="review-user">{review.user}</span>: {review.comment}
+                      <div className="review-stars">{renderStars(review.stars)}</div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <div className="action-buttons">
               <button className="add-to-cart-btn" onClick={() => onAddToCart(product)}>
                 {getText('addToCart')}
               </button>
