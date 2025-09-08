@@ -1,0 +1,46 @@
+.arrow-nav {
+  position: absolute;
+  top: 50%;
+  left: 20px; /* Adjust position as needed */
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.arrow-nav button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  background-color: rgba(255, 255, 255, 0.8);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background-color: #eee;
+    transform: scale(1.1);
+  }
+}
+
+.tech-index {
+  position: absolute;
+  left: 30px;
+  bottom: 20px; /* Adjust position as needed */
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #555;
+}
+
+@media (max-width: 768px) {
+  .arrow-nav {
+    left: 10px;
+  }
+
+  .tech-index {
+    left: 20px;
+    font-size: 1.2rem;
+  }
+}
