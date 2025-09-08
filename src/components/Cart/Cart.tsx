@@ -5,10 +5,11 @@ interface CartProps {
   cartItems: any[];
   onClose: () => void;
   onCheckout: () => void;
+  onRemoveFromCart: (index: number) => void;
   language: string;
 }
 
-const Cart: React.FC<CartProps> = ({ cartItems, onClose, onCheckout, language }) => {
+const Cart: React.FC<CartProps> = ({ cartItems, onClose, onCheckout, onRemoveFromCart, language }) => {
   const translations: { [key: string]: { [key: string]: string } } = {
     en: {
       cartTitle: 'Shopping Cart',
@@ -16,6 +17,7 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onCheckout, language })
       total: 'Total',
       checkout: 'Checkout',
       close: 'Close',
+      remove: 'Remove',
     },
     es: {
       cartTitle: 'Carrito de compras',
@@ -23,6 +25,7 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onCheckout, language })
       total: 'Total',
       checkout: 'Pagar',
       close: 'Cerrar',
+      remove: 'Eliminar',
     },
     fr: {
       cartTitle: 'Panier',
@@ -30,6 +33,7 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onCheckout, language })
       total: 'Total',
       checkout: 'Vérifier',
       close: 'Fermer',
+      remove: 'Retirer',
     },
   };
 
@@ -38,7 +42,7 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onCheckout, language })
   };
 
   const calculateTotal = () => {
-    return cartItems.reduce((acc, item) => acc + parseFloat(item.price.replace(/[^0-9.-]+/g, "")), 0);
+    return cartItems.reduce((acc, item) => acc + item.price, 0);
   };
 
   return (
@@ -56,21 +60,20 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onCheckout, language })
               <ul className="cart-items-list">
                 {cartItems.map((item, index) => (
                   <li key={index} className="cart-item">
-                    <img src={item.image} alt={item.name} className="cart-item-image" />
+                    <img src={item.productImage} alt={item.name} className="cart-item-image" />
                     <div className="cart-item-info">
                       <span className="cart-item-name">{item.name}</span>
-                      <span className="cart-item-price">{item.price}</span>
+                      <span className="cart-item-price">${item.price.toFixed(2)}</span>
                     </div>
+                    <button className="remove-btn" onClick={() => onRemoveFromCart(index)}>&times;</button>
                   </li>
                 ))}
               </ul>
               <div className="cart-summary">
                 <span className="total-label">{getText('total')}:</span>
-                <span className="total-price">${calculateTotal().toLocaleString()}</span>
+                <span className="total-price">${calculateTotal().toFixed(2)}</span>
               </div>
-              <button className="checkout-btn" onClick={onCheckout}>
-                {getText('checkout')}
-              </button>
+              <button className="checkout-btn" onClick={onCheckout}>{getText('checkout')}</button>
             </>
           )}
         </div>

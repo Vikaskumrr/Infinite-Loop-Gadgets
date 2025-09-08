@@ -1,6 +1,6 @@
 {
   "name": "infinite-loop-gadgets",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "private": true,
   "scripts": {
     "start": "react-scripts start",
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "core-js-pure": "^3.26.1",
+    "firebase": "^12.2.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-router-dom": "^6.30.1",

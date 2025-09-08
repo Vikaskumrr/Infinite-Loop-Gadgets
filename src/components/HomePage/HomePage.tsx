@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Logo from '../Logo/Logo';
 import LanguageSelector from '../LanguageSelector/LanguageSelector';
 import Product from '../Products/Products';
@@ -6,68 +6,8 @@ import ArrowNav from '../ArrowNavigation/ArrowNavigation';
 import ProductDetails from '../ProductDetails/ProductDetails';
 import Cart from '../Cart/Cart';
 import Checkout from '../Checkout/Checkout';
+import SearchFilter from '../SearchFilter/SearchFilter';
 import './HomePage.scss';
-
-// Mock product data
-const products = [
-  {
-    name: 'Alienware x18',
-    model: 'Intel ultra 9',
-    price: '$1,495,000',
-    location: 'India, Delhi',
-    image: 'https://placehold.co/600x400/000000/FFFFFF?text=Laptop',
-    year: '2025',
-    color: 'Midnight black',
-    ram: '64 GB',
-    description: 'The Alienware x18 is a high-performance gaming laptop designed for the most demanding games and creative tasks. It features the latest Intel Ultra 9 processor, a high-refresh-rate display, and a sleek, compact design.',
-    rating: 4,
-    specifications: [
-      { key: 'CPU', value: 'Intel Ultra 9' },
-      { key: 'GPU', value: 'NVIDIA GeForce RTX 4090' },
-      { key: 'Storage', value: '2 TB SSD' },
-      { key: 'Display', value: '18" QHD+ (2560 x 1600) 240Hz' },
-      { key: 'OS', value: 'Windows 11 Pro' },
-    ],
-  },
-  {
-    name: 'Samsung Galaxy',
-    model: 'S25 Ultra',
-    price: '$1,200',
-    location: 'USA, New York',
-    image: 'https://placehold.co/600x400/808080/FFFFFF?text=Mobile',
-    year: '2025',
-    color: 'Space Grey',
-    ram: '16 GB',
-    description: 'The Samsung Galaxy S25 Ultra is the pinnacle of smartphone technology, with an advanced camera system, a stunning AMOLED display, and a long-lasting battery. It is perfect for both productivity and entertainment.',
-    rating: 5,
-    specifications: [
-      { key: 'Processor', value: 'Snapdragon 9 Gen 1' },
-      { key: 'Display', value: '6.8" Dynamic AMOLED 2X' },
-      { key: 'Camera', value: '200MP Main, 10x Optical Zoom' },
-      { key: 'Battery', value: '5000mAh' },
-      { key: 'Storage', value: '512 GB' },
-    ],
-  },
-  {
-    name: 'Apple',
-    model: 'Vision Pro 2',
-    price: '$3,499',
-    location: 'USA, California',
-    image: 'https://placehold.co/600x400/D3D3D3/000000?text=VR+Headset',
-    year: '2025',
-    color: 'White',
-    ram: '32 GB',
-    description: 'Apple Vision Pro 2 is a mixed-reality headset that seamlessly blends the digital and physical worlds. It features a high-resolution display, spatial audio, and an intuitive control system for a truly immersive experience.',
-    rating: 4,
-    specifications: [
-      { key: 'Chipset', value: 'Apple R1' },
-      { key: 'Display', value: 'Micro-OLED, 23 million pixels' },
-      { key: 'Audio', value: 'Spatial Audio with dynamic head tracking' },
-      { key: 'Controls', value: 'Hand and Eye Tracking' },
-      { key: 'Connectivity', value: 'Wi-Fi 6E, Bluetooth 5.3' },
-    ],
-  },
-];
 
 const HomePage: React.FC = () => {
   const [language, setLanguage] = useState('en');
@@ -77,17 +17,83 @@ const HomePage: React.FC = () => {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [checkoutItems, setCheckoutItems] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOption, setSortOption] = useState('none');
+  const binId: any = '68bf1a1ed0ea881f4076533c'
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`https://api.jsonbin.io/v3/b/${binId}`);
+
+        // Log the response status for debugging
+        if (!response.ok) {
+          console.error('API request failed with status:', response.status);
+          throw new Error(`API request failed with status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        // Log the full API response to the console
+        console.log('API Response:', data);
+        
+        // Correctly access the 'products' key, which is nested under the 'record' key
+        if (data && data.record && Array.isArray(data.record.products)) {
+          setProducts(data.record.products);
+          setFilteredProducts(data.record.products); // Initialize filtered products
+        } else {
+          // If the products key is not an array, set a specific error message
+          setError('Invalid data format received from API. Expected an array under the "products" key.');
+          setProducts([]);
+          setFilteredProducts([]);
+        }
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Effect for filtering and sorting products
+  useEffect(() => {
+    let newFilteredProducts = [...products];
+
+    // Filter by search term
+    if (searchTerm) {
+      newFilteredProducts = newFilteredProducts.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Sort products
+    if (sortOption === 'price-asc') {
+      newFilteredProducts.sort((a, b) => a.price - b.price);
+    } else if (sortOption === 'price-desc') {
+      newFilteredProducts.sort((a, b) => b.price - a.price);
+    } else if (sortOption === 'rating') {
+      newFilteredProducts.sort((a, b) => b.rating - a.rating);
+    }
+
+    setFilteredProducts(newFilteredProducts);
+    setCurrentIndex(0); // Reset index after filtering/sorting
+  }, [searchTerm, sortOption, products]);
 
   const handleLanguageChange = (languageCode: string) => {
     setLanguage(languageCode);
   };
 
   const handleNext = () => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % products.length);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % filteredProducts.length);
   };
 
   const handlePrev = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + products.length) % products.length);
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + filteredProducts.length) % filteredProducts.length);
   };
 
   const handleOpenDetails = () => {
@@ -132,6 +138,24 @@ const HomePage: React.FC = () => {
     setCartItems([]);
   };
 
+  const handleRemoveFromCart = (index: number) => {
+    const newCartItems = [...cartItems];
+    newCartItems.splice(index, 1);
+    setCartItems(newCartItems);
+  };
+
+  if (loading) {
+    return <div className="homepage-bg">Loading products...</div>;
+  }
+
+  if (error) {
+    return <div className="homepage-bg">Error: {error}</div>;
+  }
+
+  if (filteredProducts.length === 0) {
+    return <div className="homepage-bg">No products found.</div>;
+  }
+
   return (
     <div className="homepage-bg">
       <nav className="navbar">
@@ -139,22 +163,30 @@ const HomePage: React.FC = () => {
           <Logo language={language} />
         </div>
         <div>
+        <SearchFilter
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          sortOption={sortOption}
+          onSortChange={setSortOption}
+        />
+        </div>
+        <div>
           <LanguageSelector onLanguageChange={handleLanguageChange} selectedLanguage={language} />
         </div>
-        <button className="search-btn">🔍</button>
         <button className="cart-btn" onClick={handleOpenCart}>🛒</button>
         <button className="hamburger-menu">☰</button>
       </nav>
-      <Product product={products[currentIndex]} language={language} onDetailsClick={handleOpenDetails} />
+
+      <Product product={filteredProducts[currentIndex]} language={language} onDetailsClick={handleOpenDetails} />
       <ArrowNav
         onPrev={handlePrev}
         onNext={handleNext}
         currentIndex={currentIndex}
-        totalProducts={products.length}
+        totalProducts={filteredProducts.length}
       />
       {isDetailsOpen && (
         <ProductDetails
-          product={products[currentIndex]}
+          product={filteredProducts[currentIndex]}
           onClose={handleCloseDetails}
           onAddToCart={handleAddToCart}
           onBuyNow={handleBuyNow}
@@ -166,6 +198,7 @@ const HomePage: React.FC = () => {
           cartItems={cartItems}
           onClose={handleCloseCart}
           onCheckout={handleCheckoutFromCart}
+          onRemoveFromCart={handleRemoveFromCart}
           language={language}
         />
       )}
