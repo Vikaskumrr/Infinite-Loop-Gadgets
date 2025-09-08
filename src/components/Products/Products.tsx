@@ -14,9 +14,10 @@ interface ProductProps {
     ram: string;
   };
   language: string;
+  onDetailsClick: () => void;
 }
 
-const Product: React.FC<ProductProps> = ({ product, language }) => {
+const Product: React.FC<ProductProps> = ({ product, language, onDetailsClick }) => {
   // A simple translation map for the captions
   const captions: { [key: string]: { [key: string]: string } } = {
     en: {
@@ -63,7 +64,7 @@ const Product: React.FC<ProductProps> = ({ product, language }) => {
         <div>
           <strong>{product.ram}</strong> <div className="caption">{getCaption('ram')}</div>
         </div>
-        <button className="details-btn">{getCaption('fullDetails')}</button>
+        <button className="details-btn" onClick={onDetailsClick}>{getCaption('fullDetails')}</button>
       </div>
     </section>
   );

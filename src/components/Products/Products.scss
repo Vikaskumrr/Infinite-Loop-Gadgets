@@ -49,49 +49,20 @@
   }
 
   .tech-details strong {
-    font-size: 1.5rem;
-  }
-
-  .caption {
-    font-size: 0.9rem;
-    color: #777;
-    margin-top: 0.25rem;
-  }
-
-  .details-btn {
-    padding: 10px 20px;
-    border-radius: 20px;
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  .details-btn:hover {
-    background-color: #0056b3;
-  }
-}
-
-@media (max-width: 768px) {
-  .tech-main {
-    padding: 1rem;
-  }
-
-  .tech-header h1 {
-    font-size: 2rem;
-  }
-
-  .model {
     font-size: 1.2rem;
   }
-
-  .tech-details {
-    flex-direction: column;
-  }
-
-  .tech-details > div {
-    margin-bottom: 1rem;
+  
+  .details-btn {
+    background: none;
+    border: none;
+    color: #007bff;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
