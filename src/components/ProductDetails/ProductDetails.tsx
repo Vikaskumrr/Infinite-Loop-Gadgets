@@ -76,7 +76,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
           <div className="product-info">
             <h2>{product.name}</h2>
             <p className="product-brand">{product.brand}</p>
-            <p className="product-price">${product.price.toFixed(2)}</p>
+            <p className="product-price">₹{product.price.toFixed(2)}</p>
             <div className="rating">
               {getText('rating')}: {product.rating} ★
             </div>

@@ -61,17 +61,10 @@
       font-weight: normal;
     }
   }
-  .price-location {
-    font-size: 1.2rem;
-    color: #777;
-    margin-top: 0.5rem;
-    .price {
-      font-weight: bold;
-      color: #007bff;
-    }
-    .location {
-      // font-style: italic;
-    }
+
+  .price {
+    font-weight: bold;
+    color: #007bff;
   }
 }
 

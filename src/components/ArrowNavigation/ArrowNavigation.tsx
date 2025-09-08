@@ -15,7 +15,6 @@ const ArrowNav: React.FC<ArrowNavProps> = ({ onPrev, onNext, currentIndex, total
         <button onClick={onPrev}>↑</button>
         <button onClick={onNext}>↓</button>
       </div>
-      <span className="tech-index">0{currentIndex + 1}</span>
     </>
   );
 };

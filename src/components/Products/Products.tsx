@@ -47,7 +47,7 @@ const Product: React.FC<ProductProps> = ({ product, language, onDetailsClick }) 
       <div className="tech-header">
         <h1>{product?.name}</h1>
         <div className="price-location">
-          <span className="price">${product?.price.toFixed(2)}</span>
+          <span className="price">₹{product?.price.toFixed(2)}</span>
         </div>
       </div>
       <img src={product?.productImage} alt={product?.name} className="tech-image" />
