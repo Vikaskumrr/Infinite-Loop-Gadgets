@@ -7,6 +7,7 @@ import ProductDetails from '../ProductDetails/ProductDetails';
 import Cart from '../Cart/Cart';
 import Checkout from '../Checkout/Checkout';
 import SearchFilter from '../SearchFilter/SearchFilter';
+import HamburgerMenu from '../HamburgerMenu/HamburgerMenu'; // Assuming HamburgerMenu.tsx is in the same folder
 import './HomePage.scss';
 
 const HomePage: React.FC = () => {
@@ -174,7 +175,7 @@ const HomePage: React.FC = () => {
           <LanguageSelector onLanguageChange={handleLanguageChange} selectedLanguage={language} />
         </div>
         <button className="cart-btn" onClick={handleOpenCart}>🛒</button>
-        <button className="hamburger-menu">☰</button>
+        <HamburgerMenu />
       </nav>
 
       <Product product={filteredProducts[currentIndex]} language={language} onDetailsClick={handleOpenDetails} />
