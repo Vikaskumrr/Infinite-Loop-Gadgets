@@ -22,9 +22,8 @@ const HamburgerMenu = () => {
       <nav className={`menu-list ${isOpen ? 'active' : ''}`}>
         <ul>
           <li><a href="#">Account</a></li>
-          <li><a href="#">Services</a></li>
+          <li><a href="#">Settings</a></li>
           <li><a href="#">About</a></li>
-          <li><a href="#">Contact</a></li>
           <li><a href="#">Help</a></li>
         </ul>
       </nav>
