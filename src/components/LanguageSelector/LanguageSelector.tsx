@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './LanguageSelector.scss';
 
+// Add more languages with their native names for better user experience
 const languages = [
-  { code: 'en', label: 'ENG' },
-  { code: 'es', label: 'ESP' },
-  { code: 'fr', label: 'FRA' },
+  { code: 'en', label: 'English' },
+  { code: 'es', label: 'Español' },
+  { code: 'fr', label: 'Français' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'zh', label: '中文' },
 ];
 
 interface LanguageSelectorProps {
@@ -14,29 +17,50 @@ interface LanguageSelectorProps {
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({ onLanguageChange, selectedLanguage }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const selectorRef = useRef<HTMLDivElement>(null);
+
+  // Close the dropdown if the user clicks outside of it
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (selectorRef.current && !selectorRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, []);
 
   const handleLanguageChange = (language: { code: string, label: string }) => {
     onLanguageChange(language.code);
     setIsOpen(false);
   };
 
-  const currentLanguageLabel = languages.find(lang => lang.code === selectedLanguage)?.label || 'ENG';
+  const currentLanguageLabel = languages.find(lang => lang.code === selectedLanguage)?.label || 'English';
 
   return (
-    <div className="language-selector-container">
-      <div className="language-selector-display" onClick={() => setIsOpen(!isOpen)}>
-        {currentLanguageLabel} ▼
-      </div>
+    <div className="language-selector-container" ref={selectorRef}>
+      <button
+        className="language-selector-display"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+      >
+        <span className="language-label">{currentLanguageLabel}</span>
+        <span className="icon-arrow" aria-hidden="true">▼</span>
+      </button>
       {isOpen && (
-        <div className="language-selector-dropdown">
+        <div className="language-selector-dropdown" role="menu">
           {languages.map((lang) => (
-            <div
+            <button
               key={lang.code}
               className={`language-option ${selectedLanguage === lang.code ? 'selected' : ''}`}
               onClick={() => handleLanguageChange(lang)}
+              role="menuitem"
             >
               {lang.label}
-            </div>
+            </button>
           ))}
         </div>
       )}
