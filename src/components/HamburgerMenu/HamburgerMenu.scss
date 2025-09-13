@@ -1,10 +1,34 @@
+/* Container for the main header */
+.main-header {
+  display: flex;
+  justify-content: space-between; /* Pushes site name to left, hamburger to right */
+  align-items: center;
+  padding: 1rem 20px; /* Adjust padding as needed */
+  background-color: #fff; /* Example background */
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1001; /* Ensure header is on top */
+}
+
+.site-brand {
+  .site-name {
+    font-size: 1.5rem; /* Adjust font size */
+    font-weight: bold;
+    color: #333; /* Site name color */
+    text-decoration: none;
+  }
+}
+
 /* Container for the hamburger icon */
 .hamburger-container {
-  display: flex;
+  display: flex; /* Always display as flex to keep it ready */
   flex-direction: column;
   justify-content: space-evenly;
-  width: 2rem; /* Adjust size as needed */
-  height: 2rem; /* Adjust size as needed */
+  width: 1.5rem; /* Adjust size as needed */
+  height: 1.6rem; /* Adjust size as needed */
   cursor: pointer;
   z-index: 1000; /* Ensure it's above other content */
 }
@@ -69,7 +93,7 @@
   background-color: #eee;
 }
 
-/* New: Styles for the clickable overlay */
+/* Styles for the clickable overlay */
 .menu-overlay {
   position: fixed;
   top: 0;
@@ -78,4 +102,25 @@
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
   z-index: 998; /* Placed below the menu but above all other content */
+}
+
+/* Global body and html styles (make sure these are in your main app.scss or similar) */
+body, html {
+  height: 100%;
+  margin: 0;
+  overflow: hidden; /* Prevent main body scroll */
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Ensure the app takes full viewport height */
+  overflow: hidden; /* Prevent global scrollbar if content overflows the app div */
+}
+
+.content {
+  flex-grow: 1; /* Allows content to take up remaining space */
+  overflow-y: auto; /* Adds scrollbar only to the content area */
+  -webkit-overflow-scrolling: touch; /* For smoother scrolling on iOS */
+  padding-top: 0; /* Remove top padding if header is sticky */
 }

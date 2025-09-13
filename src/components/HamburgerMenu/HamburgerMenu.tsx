@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './HamburgerMenu.scss';
+import { Link } from 'react-router-dom';
 
 const HamburgerMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,14 +22,13 @@ const HamburgerMenu = () => {
 
       <nav className={`menu-list ${isOpen ? 'active' : ''}`}>
         <ul>
-          <li><a href="#">Account</a></li>
+          <li><Link to="/account" onClick={toggleMenu}>Account</Link></li>
           <li><a href="#">Settings</a></li>
           <li><a href="#">About</a></li>
           <li><a href="#">Help</a></li>
         </ul>
       </nav>
 
-      {/* New overlay element to close the menu when clicked outside */}
       {isOpen && (
         <div 
           className="menu-overlay" 
