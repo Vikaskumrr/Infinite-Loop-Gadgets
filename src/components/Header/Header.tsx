@@ -38,9 +38,8 @@ const Header: React.FC<HeaderProps> = ({
         />
       </div>
       <div className="controls">
-        <LanguageSelector onLanguageChange={onLanguageChange} selectedLanguage={language} />
         <button className="cart-btn" onClick={onOpenCart}>🛒</button>
-        <HamburgerMenu />
+        <HamburgerMenu language={language} onLanguageChange={onLanguageChange} />
       </div>
     </nav>
   );

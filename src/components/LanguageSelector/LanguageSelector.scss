@@ -1,41 +1,74 @@
 .language-selector-container {
   position: relative;
   display: inline-block;
-  cursor: pointer;
 
   .language-selector-display {
-    padding: 8px 12px;
-    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: ridge;
     background-color: transparent;
-    transition: background-color 0.2s ease;
+    cursor: pointer;
+    font-size: 16px;
+    color: #222222;
+    border-radius: 8px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    
+    .language-label {
+      line-height: 1;
+    }
+
+    .icon-globe {
+      font-size: 1.2em;
+    }
+
+    .icon-arrow {
+      transition: transform 0.2s ease;
+    }
   }
 
   .language-selector-display:hover {
     background-color: rgba(255, 255, 255, 0.1);
   }
+  
+  // Style for the arrow when the dropdown is open
+  &.open .language-selector-display .icon-arrow {
+    transform: rotate(180deg);
+  }
 
   .language-selector-dropdown {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 8px); // Add some spacing from the button
     left: 0;
-    margin-top: 5px;
+    min-width: 150px;
     background-color: #333;
     border: 1px solid #555;
     border-radius: 8px;
-    min-width: 80px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     z-index: 100;
+    padding: 8px 0;
   }
 
   .language-option {
-    padding: 10px;
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    background-color: transparent;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
     transition: background-color 0.2s ease;
-    
+
     &:hover {
       background-color: #555;
     }
     
     &.selected {
       background-color: #777;
+      font-weight: bold;
     }
   }
 }

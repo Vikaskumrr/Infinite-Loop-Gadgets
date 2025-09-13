@@ -72,14 +72,14 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language }) => {
                     <img src={item.productImage} alt={item.name} className="order-item-image" />
                     <div className="order-item-info">
                       <span className="order-item-name">{item.name}</span>
-                      <span className="order-item-price">${item.price.toFixed(2)}</span>
+                      <span className="order-item-price">₹{item.price.toFixed(2)}</span>
                     </div>
                   </li>
                 ))}
               </ul>
               <div className="order-total">
                 <span className="total-label">{getText('total')}:</span>
-                <span className="total-price">${calculateTotal().toFixed(2)}</span>
+                <span className="total-price">₹{calculateTotal().toFixed(2)}</span>
               </div>
             </div>
             <div className="checkout-buttons">
