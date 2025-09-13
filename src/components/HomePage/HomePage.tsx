@@ -4,6 +4,7 @@ import ArrowNav from '../ArrowNavigation/ArrowNavigation';
 import ProductDetails from '../ProductDetails/ProductDetails';
 import Cart from '../Cart/Cart';
 import Checkout from '../Checkout/Checkout';
+import Footer from '../Footer/Footer';
 import './HomePage.scss';
 
 interface HomePageProps {
@@ -180,6 +181,7 @@ const HomePage: React.FC<HomePageProps> = ({
           language={language}
         />
       )}
+      <Footer/>
     </div>
   );
 };

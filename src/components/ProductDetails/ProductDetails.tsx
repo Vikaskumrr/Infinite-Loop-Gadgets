@@ -75,6 +75,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
           <img src={product.productImage} alt={product.name} className="product-image" />
           <div className="product-info">
             <h2>{product.name}</h2>
+            <p className="social-proof">
+            <span role="img" aria-label="eye">👁️</span> 20 people viewed this recently.
+            </p>
             <p className="product-brand">{product.brand}</p>
             <p className="product-price">₹{product.price.toFixed(2)}</p>
             <div className="rating">
