@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './Cart.scss';
+import Checkout from '../Checkout/Checkout';
 
 interface CartProps {
   cartItems: any[];
   onClose: () => void;
-  onCheckout: () => void;
   onRemoveFromCart: (index: number) => void;
   language: string;
 }
 
-const Cart: React.FC<CartProps> = ({ cartItems, onClose, onCheckout, onRemoveFromCart, language }) => {
+const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, language }) => {
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+
   const translations: { [key: string]: { [key: string]: string } } = {
     en: {
       cartTitle: 'Shopping Cart',
@@ -45,40 +47,57 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onCheckout, onRemoveFro
     return cartItems.reduce((acc, item) => acc + item.price, 0);
   };
 
+  const handleCheckout = () => {
+    setIsCheckoutOpen(true);
+  };
+
+  const handleCloseCheckout = () => {
+    setIsCheckoutOpen(false);
+  };
+
   return (
-    <div className="cart-overlay" onClick={onClose}>
-      <div className="cart-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="close-btn" onClick={onClose}>
-          &times;
-        </button>
-        <h3>{getText('cartTitle')}</h3>
-        <div className="cart-content">
-          {cartItems.length === 0 ? (
-            <div className="empty-cart-message">{getText('emptyCart')}</div>
-          ) : (
-            <>
-              <ul className="cart-items-list">
-                {cartItems.map((item, index) => (
-                  <li key={index} className="cart-item">
-                    <img src={item.productImage} alt={item.name} className="cart-item-image" />
-                    <div className="cart-item-info">
-                      <span className="cart-item-name">{item.name}</span>
-                      <span className="cart-item-price">${item.price.toFixed(2)}</span>
-                    </div>
-                    <button className="remove-btn" onClick={() => onRemoveFromCart(index)}>&times;</button>
-                  </li>
-                ))}
-              </ul>
-              <div className="cart-summary">
-                <span className="total-label">{getText('total')}:</span>
-                <span className="total-price">${calculateTotal().toFixed(2)}</span>
-              </div>
-              <button className="checkout-btn" onClick={onCheckout}>{getText('checkout')}</button>
-            </>
-          )}
+    <>
+      <div className="cart-overlay" onClick={onClose}>
+        <div className="cart-modal" onClick={(e) => e.stopPropagation()}>
+          <button className="close-btn" onClick={onClose}>
+            &times;
+          </button>
+          <h3>{getText('cartTitle')}</h3>
+          <div className="cart-content">
+            {cartItems.length === 0 ? (
+              <div className="empty-cart-message">{getText('emptyCart')}</div>
+            ) : (
+              <>
+                <ul className="cart-items-list">
+                  {cartItems.map((item, index) => (
+                    <li key={index} className="cart-item">
+                      <img src={item.productImage} alt={item.name} className="cart-item-image" />
+                      <div className="cart-item-info">
+                        <span className="cart-item-name">{item.name}</span>
+                        <span className="cart-item-price">${item.price.toFixed(2)}</span>
+                      </div>
+                      <button className="remove-btn" onClick={() => onRemoveFromCart(index)}>&times;</button>
+                    </li>
+                  ))}
+                </ul>
+                <div className="cart-summary">
+                  <span className="total-label">{getText('total')}:</span>
+                  <span className="total-price">${calculateTotal().toFixed(2)}</span>
+                </div>
+                <button className="checkout-btn" onClick={handleCheckout}>{getText('checkout')}</button>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+      {isCheckoutOpen && (
+        <Checkout
+          products={cartItems}
+          onClose={handleCloseCheckout}
+          language={language}
+        />
+      )}
+    </>
   );
 };
 
