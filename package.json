@@ -1,6 +1,6 @@
 {
   "name": "infinite-loop-gadgets",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "private": true,
   "scripts": {
     "start": "react-scripts start",
