@@ -4,6 +4,7 @@ import HomePage from './components/HomePage/HomePage';
 import Header from './components/Header/Header';
 import AccountDetailsPage from './components/AccountDetailsPage/AccountDetailsPage';
 import Cart from './components/Cart/Cart';
+import AboutUs from './components/AboutUs/AboutUs';
 import './styles/app.scss';
 
 function App(): JSX.Element {
@@ -57,6 +58,7 @@ function App(): JSX.Element {
                         setSortOption={setSortOption}
                     />} />
                     <Route path="/account" element={<AccountDetailsPage />} />
+                    <Route path="/about" element={<AboutUs />} />
                 </Routes>
                 {isCartOpen && (
                     <Cart

@@ -1,0 +1,59 @@
+.about-us-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 4rem 2rem;
+  min-height: 100vh;
+  background-color: #f4f7f6;
+}
+
+.about-us-content {
+  max-width: 800px;
+  background-color: #ffffff;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  line-height: 1.7;
+
+  h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 1.5rem;
+  }
+
+  .mission-statement {
+    margin-top: 2.5rem;
+    border-left: 4px solid #007bff;
+    padding-left: 1.5rem;
+    
+    h3 {
+      font-size: 1.5rem;
+      color: #007bff;
+      margin-bottom: 0.5rem;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .about-us-container {
+    padding: 2rem 1rem;
+  }
+  
+  .about-us-content {
+    padding: 2rem;
+  }
+
+  .about-us-content h1 {
+    font-size: 2rem;
+  }
+}
