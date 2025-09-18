@@ -39,7 +39,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ language, onLanguageChang
         <ul>
           <li><Link to="/account" onClick={toggleMenu}>Account</Link></li>
           <li><a href="#" onClick={handleOpenSettings}>Settings</a></li>
-          <li><a href="#">About</a></li>
+          <li><Link to="/about" onClick={toggleMenu}>About</Link></li>
           <li><a href="#">Help</a></li>
         </ul>
       </nav>
