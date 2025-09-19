@@ -5,6 +5,9 @@ import ProductDetails from '../ProductDetails/ProductDetails';
 import Cart from '../Cart/Cart';
 import Checkout from '../Checkout/Checkout';
 import Footer from '../Footer/Footer';
+import Loader from '../Loader/Loader';
+import Chatbox from '../Chatbox/Chatbox';
+import ChatboxAssistant from '../ChatboxAssistant/ChatboxAssistant';
 import './HomePage.scss';
 
 interface HomePageProps {
@@ -41,6 +44,7 @@ const HomePage: React.FC<HomePageProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const binId: any = '68bf1a1ed0ea881f4076533c'
+  const [isChatboxOpen, setIsChatboxOpen] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -136,8 +140,16 @@ const HomePage: React.FC<HomePageProps> = ({
     setCartItems(newCartItems);
   };
 
+    const handleOpenChatbox = () => {
+    setIsChatboxOpen(true);
+  };
+
+  const handleCloseChatbox = () => {
+    setIsChatboxOpen(false);
+  };
+
   if (loading) {
-    return <div className="homepage-bg">Loading products...</div>;
+    return <Loader />;
   }
 
   if (error) {
@@ -149,7 +161,8 @@ const HomePage: React.FC<HomePageProps> = ({
   }
 
   return (
-    <div className="homepage-bg">
+    <div className="animated-bg-container">
+      <ChatboxAssistant />
       <Product product={filteredProducts[currentIndex]} language={language} onDetailsClick={handleOpenDetails} />
       <ArrowNav
         onPrev={handlePrev}
@@ -181,6 +194,7 @@ const HomePage: React.FC<HomePageProps> = ({
           language={language}
         />
       )}
+      {isChatboxOpen && <Chatbox onClose={handleCloseChatbox} />}
       <Footer/>
     </div>
   );
