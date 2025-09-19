@@ -9,7 +9,7 @@ Infinite Loop Gadgets is a React application built with TypeScript. This project
 - Controllers for managing application state
 - Unit tests to ensure code quality
 - Environment configuration with `.env` file
-- GitHub Actions for automated versioning
+- GitHub Actions for automated versioning 
 
 ## Project Structure
 ```
