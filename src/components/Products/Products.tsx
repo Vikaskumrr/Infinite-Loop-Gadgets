@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Products.scss';
+import ImageLoader from '../ImageLoader/ImageLoader';
 
 // Define the type for a product object based on the new API data
 interface ProductProps {
@@ -8,7 +9,7 @@ interface ProductProps {
     brand: string;
     price: number;
     rating: number;
-    productImage: string; // Changed from 'image'
+    productImage: string;
     color: string;
   };
   language: string;
@@ -16,6 +17,12 @@ interface ProductProps {
 }
 
 const Product: React.FC<ProductProps> = ({ product, language, onDetailsClick }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [product?.productImage]);
+
   // A simple translation map for the captions
   const captions: { [key: string]: { [key: string]: string } } = {
     en: {
@@ -42,6 +49,8 @@ const Product: React.FC<ProductProps> = ({ product, language, onDetailsClick }) 
     return (captions[language] && captions[language][key]) || captions.en[key];
   };
 
+  const showImageLoader = !product?.productImage || !imageLoaded;
+
   return (
     <section className="tech-main">
       <div className="tech-header">
@@ -50,7 +59,21 @@ const Product: React.FC<ProductProps> = ({ product, language, onDetailsClick }) 
           <span className="price">₹{product?.price.toFixed(2)}</span>
         </div>
       </div>
-      <img src={product?.productImage} alt={product?.name} className="tech-image" />
+      <div className="image-wrapper">
+        {showImageLoader && (
+          <ImageLoader />
+        )}
+        {product?.productImage && (
+          <img
+            src={product?.productImage}
+            alt={product?.name}
+            className="tech-image"
+            style={{ display: imageLoaded ? 'block' : 'none' }}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageLoaded(true)}
+          />
+        )}
+      </div>
       <div className="tech-details">
         <div>
           <strong>{product?.brand}</strong> <div className="caption">{getCaption('brand')}</div>

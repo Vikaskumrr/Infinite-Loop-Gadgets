@@ -1,13 +1,9 @@
 @use 'src/styles/variables.scss' as *;
 
 .homepage-bg {
-  background: linear-gradient(to bottom, $bg-start 0%, $bg-end 100%);
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-color: #f0f2f5;
-  color: #333;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: transparent;
+  width: 100%;
+  height: 100%;
 }
 
 .search-btn,
@@ -102,6 +98,12 @@
       background: rgba(255, 255, 255, 1);
     }
   }
+}
+
+.loading-products {
+  font-size: 1.5rem;
+  color: #555;
+  margin-top: 2rem;
 }
 
 @media (max-width: 768px) {

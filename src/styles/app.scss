@@ -2,7 +2,9 @@ $primary-color: #1e90ff;
 $bg: #f7f9fc;
 
 body {
-  background: $bg;
+  background: linear-gradient(-45deg, #e0eafc, #cfdef3, #e0eafc);
+  background-size: 400% 400%;
+  animation: gradient-animation 15s ease infinite;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   color: #222;
   margin: 0;
@@ -34,5 +36,17 @@ body {
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
       padding: 1rem;
     }
+  }
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
