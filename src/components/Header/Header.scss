@@ -9,16 +9,29 @@
   top: 0;
   z-index: 50;
 
-  .controls {
+  .logo-and-categories {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 2rem;
   }
 }
 
 .logo {
   font-weight: bold;
   font-size: 1.5rem;
+}
+
+.search-and-sort {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 1rem;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .cart-btn {
@@ -34,14 +47,17 @@
     justify-content: center;
     padding: 1rem;
     
-    .logo, .search-and-sort, .controls {
+    .logo-and-categories {
       flex-basis: 100%;
       text-align: center;
       margin-bottom: 0.5rem;
+      justify-content: center;
     }
 
-    .controls {
-      justify-content: space-between;
+    .search-and-sort, .controls {
+      flex-basis: 100%;
+      text-align: center;
+      margin-bottom: 0.5rem;
     }
   }
 }

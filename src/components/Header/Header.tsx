@@ -3,6 +3,7 @@ import Logo from '../Logo/Logo';
 import LanguageSelector from '../LanguageSelector/LanguageSelector';
 import SearchFilter from '../SearchFilter/SearchFilter';
 import HamburgerMenu from '../HamburgerMenu/HamburgerMenu';
+import Categories from '../Categories/Categories'; // Import the new component
 import './Header.scss';
 
 interface HeaderProps {
@@ -26,8 +27,11 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   return (
     <nav className="navbar">
-      <div className="logo">
-        <Logo language={language} />
+      <div className="logo-and-categories">
+        <div className="logo">
+          <Logo language={language} />
+        </div>
+        <Categories />
       </div>
       <div className="search-and-sort">
         <SearchFilter
