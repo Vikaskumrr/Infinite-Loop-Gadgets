@@ -1,7 +1,8 @@
 name: Release
 
 on:
-  push: {}
+  push:
+    branches: [ main, master ]
 
 permissions:
   contents: write
@@ -13,6 +14,7 @@ concurrency:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
