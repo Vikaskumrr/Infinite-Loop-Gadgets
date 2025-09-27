@@ -5,3 +5,5 @@ const w = window as unknown as { Sentry?: any };
 if (dsn && w.Sentry && typeof w.Sentry.init === 'function') {
   w.Sentry.init({ dsn, tracesSampleRate: 1.0 });
 }
+
+export {};

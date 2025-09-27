@@ -12,3 +12,5 @@ if (gaId) {
   gtag('js', new Date());
   gtag('config', gaId);
 }
+
+export {};

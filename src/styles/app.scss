@@ -19,7 +19,7 @@ body.theme-gradient {
   --button-secondary-bg: #FF6B6B;
   --text-color: #FFFFFF;
   --muted-text: #e5e7eb;
-  background: linear-gradient(135deg, #6A11CB, #2575FC);
+  background: linear-gradient(to bottom, #000000 0%, #f5f5f5 100%);
   background-size: 400% 400%;
   animation: gradient-animation 15s ease infinite;
   color: var(--text-color);
