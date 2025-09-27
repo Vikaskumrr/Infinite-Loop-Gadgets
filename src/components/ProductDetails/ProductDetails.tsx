@@ -67,14 +67,20 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
 
   return (
     <div className="product-details-overlay" onClick={onClose}>
-      <div className="product-details-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="close-btn" onClick={onClose}>
+      <div
+        className="product-details-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="product-details-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button className="close-btn" onClick={onClose} aria-label="Close product details">
           &times;
         </button>
         <div className="product-details-content">
-          <img src={product.productImage} alt={product.name} className="product-image" />
+          <img src={product.productImage} alt={product.name} className="product-image" loading="lazy" decoding="async" />
           <div className="product-info">
-            <h2>{product.name}</h2>
+            <h2 id="product-details-title">{product.name}</h2>
             <p className="social-proof">
             <span role="img" aria-label="eye">👁️</span> 20 people viewed this recently.
             </p>

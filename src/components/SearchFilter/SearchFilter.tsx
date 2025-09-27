@@ -12,7 +12,9 @@ const SearchFilter: React.FC<SearchFilterProps> = ({ searchTerm, onSearchChange,
   return (
     <div className="search-filter-container">
       <div className="search-input-wrapper">
+        <label htmlFor="product-search" className="visually-hidden">Search products</label>
         <input
+          id="product-search"
           type="text"
           placeholder="Search products..."
           value={searchTerm}
@@ -20,7 +22,8 @@ const SearchFilter: React.FC<SearchFilterProps> = ({ searchTerm, onSearchChange,
         />
       </div>
       <div className="sort-select-wrapper">
-        <select value={sortOption} onChange={(e) => onSortChange(e.target.value)}>
+        <label htmlFor="sort-select" className="visually-hidden">Sort products</label>
+        <select id="sort-select" value={sortOption} onChange={(e) => onSortChange(e.target.value)}>
           <option value="none">Sort By</option>
           <option value="price-asc">Price: Low to High</option>
           <option value="price-desc">Price: High to Low</option>

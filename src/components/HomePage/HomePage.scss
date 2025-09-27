@@ -32,16 +32,17 @@
   h1 {
     font-size: 3rem;
     font-weight: bold;
+    color: var(--text-color, inherit);
     .model {
       font-size: 1.5rem;
-      color: #555;
+      color: var(--muted-text, #555);
       font-weight: normal;
     }
   }
 
   .price {
     font-weight: bold;
-    color: #007bff;
+    color: var(--accent, #007bff);
   }
 }
 
@@ -98,6 +99,10 @@
       background: rgba(255, 255, 255, 1);
     }
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arrow-nav { transform: none; }
 }
 
 .loading-products {

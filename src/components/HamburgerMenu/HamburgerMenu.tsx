@@ -27,20 +27,24 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ language, onLanguageChang
 
   return (
     <>
-      <div
+      <button
+        type="button"
         className={`hamburger-container ${isOpen ? 'active' : ''}`}
         onClick={toggleMenu}
+        aria-label={isOpen ? 'Close menu' : 'Open menu'}
+        aria-expanded={isOpen}
+        aria-controls="main-menu"
       >
         <div className="hamburger-line"></div>
         <div className="hamburger-line"></div>
         <div className="hamburger-line"></div>
-      </div>
-      <nav className={`menu-list ${isOpen ? 'active' : ''}`}>
+      </button>
+      <nav id="main-menu" className={`menu-list ${isOpen ? 'active' : ''}`}>
         <ul>
           <li><Link to="/account" onClick={toggleMenu}>Account</Link></li>
-          <li><a href="#" onClick={handleOpenSettings}>Settings</a></li>
+          <li><button type="button" onClick={handleOpenSettings}>Settings</button></li>
           <li><Link to="/about" onClick={toggleMenu}>About</Link></li>
-          <li><a href="#">Help</a></li>
+          <li><button type="button" onClick={(e) => e.preventDefault()}>Help</button></li>
         </ul>
       </nav>
       {isOpen && (

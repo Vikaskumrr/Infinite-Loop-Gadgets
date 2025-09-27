@@ -48,6 +48,26 @@ padding: 1rem 0;
 border-bottom: 1px solid #eee;
 }
 
+.setting-item.column {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.setting-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.display-select {
+  margin-left: auto;
+  max-width: 300px;
+}
+
+.display-select select {
+  width: 100%;
+}
+
 .setting-item:last-child {
 border-bottom: none;
 }

@@ -4,6 +4,17 @@
   align-items: center;
 }
 
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
 .search-input-wrapper {
   position: relative;
   input {
@@ -15,6 +26,7 @@
     transition: box-shadow 0.2s;
     &:focus {
       box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent, #007bff) 40%, transparent);
     }
   }
 }
@@ -29,7 +41,7 @@
     outline: none;
     transition: border-color 0.2s;
     &:hover {
-      border-color: #007bff;
+      border-color: var(--accent, #007bff);
     }
   }
 }

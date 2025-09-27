@@ -60,5 +60,6 @@ jobs:
             git add package.json package-lock.json
             git commit -m "chore(release): bump version to ${NEW_VER} [skip ci]" || true
             git push origin HEAD --follow-tags
+            # git push origin $(git rev-parse --abbrev-ref HEAD) --follow-tags
             echo "Pushed version ${NEW_VER}"
           fi
