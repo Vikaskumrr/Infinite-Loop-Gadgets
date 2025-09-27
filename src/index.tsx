@@ -3,8 +3,13 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import './styles/app.scss';
-import './sentry';
-import './analytics';
+// Dynamically load optional modules only when env vars are provided to avoid build/runtime errors
+if (process.env.REACT_APP_SENTRY_DSN) {
+  import('./sentry').catch(() => {});
+}
+if (process.env.REACT_APP_GA_ID) {
+  import('./analytics').catch(() => {});
+}
 
 // Apply saved or default theme before app mounts
 (() => {
