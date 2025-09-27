@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import HomePage from './components/HomePage/HomePage';
 import Header from './components/Header/Header';
-import AccountDetailsPage from './components/AccountDetailsPage/AccountDetailsPage';
 import Cart from './components/Cart/Cart';
-import AboutUs from './components/AboutUs/AboutUs';
+import Loader from './components/Loader/Loader';
 import './styles/app.scss';
+
+const AccountDetailsPage = lazy(() => import('./components/AccountDetailsPage/AccountDetailsPage'));
+const AboutUs = lazy(() => import('./components/AboutUs/AboutUs'));
 
 function App(): JSX.Element {
     const [language, setLanguage] = useState('en');
@@ -28,9 +30,6 @@ function App(): JSX.Element {
       setCartItems(newCartItems);
     };
 
-    const handleCheckoutFromCart = () => {
-      // Logic for handling checkout from cart
-    };
 
     return (
         <div className="app">
@@ -42,24 +41,27 @@ function App(): JSX.Element {
                 sortOption={sortOption}
                 onSortChange={setSortOption}
                 onOpenCart={handleOpenCart}
+                cartCount={cartItems.length}
             />
             <main className="content">
-                <Routes>
-                    <Route path="/" element={<HomePage
-                        language={language}
-                        isCartOpen={isCartOpen}
-                        onOpenCart={handleOpenCart}
-                        onCloseCart={handleCloseCart}
-                        cartItems={cartItems}
-                        setCartItems={setCartItems}
-                        searchTerm={searchTerm}
-                        setSearchTerm={setSearchTerm}
-                        sortOption={sortOption}
-                        setSortOption={setSortOption}
-                    />} />
-                    <Route path="/account" element={<AccountDetailsPage />} />
-                    <Route path="/about" element={<AboutUs />} />
-                </Routes>
+                <Suspense fallback={<Loader />}>
+                  <Routes>
+                      <Route path="/" element={<HomePage
+                          language={language}
+                          isCartOpen={isCartOpen}
+                          onOpenCart={handleOpenCart}
+                          onCloseCart={handleCloseCart}
+                          cartItems={cartItems}
+                          setCartItems={setCartItems}
+                          searchTerm={searchTerm}
+                          setSearchTerm={setSearchTerm}
+                          sortOption={sortOption}
+                          setSortOption={setSortOption}
+                      />} />
+                      <Route path="/account" element={<AccountDetailsPage />} />
+                      <Route path="/about" element={<AboutUs />} />
+                  </Routes>
+                </Suspense>
                 {isCartOpen && (
                     <Cart
                         cartItems={cartItems}

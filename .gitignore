@@ -23,6 +23,8 @@ tsconfig.tsbuildinfo
 .env
 .env.*.local
 .env.local
+.env.development
+.env.production
 
 # Testing
 /coverage
@@ -51,4 +53,4 @@ desktop.ini
 # Package managers lock files (uncomment if you don't want to track them)
 # package-lock.json
 # yarn.lock
-# pnpm-
+# pnpm-.env

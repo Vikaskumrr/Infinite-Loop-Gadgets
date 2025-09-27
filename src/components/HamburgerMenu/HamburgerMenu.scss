@@ -80,16 +80,23 @@
   margin: 0;
 }
 
-.menu-list ul li a {
+.menu-list ul li a,
+.menu-list ul li button {
   display: block;
+  width: 100%;
+  text-align: left;
   padding: 1rem 1.5rem;
   color: #555;
   text-decoration: none;
   font-size: 1.2rem;
   transition: background-color 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
-.menu-list ul li a:hover {
+.menu-list ul li a:hover,
+.menu-list ul li button:hover {
   background-color: #eee;
 }
 

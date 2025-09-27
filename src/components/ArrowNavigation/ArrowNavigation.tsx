@@ -12,8 +12,8 @@ const ArrowNav: React.FC<ArrowNavProps> = ({ onPrev, onNext, currentIndex, total
   return (
     <>
       <div className="arrow-nav">
-        <button onClick={onPrev}>↑</button>
-        <button onClick={onNext}>↓</button>
+        <button type="button" onClick={onPrev} aria-label="Previous product" title="Previous product">↑</button>
+        <button type="button" onClick={onNext} aria-label="Next product" title="Next product">↓</button>
       </div>
     </>
   );

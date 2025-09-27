@@ -11,6 +11,51 @@ body {
   padding: 0;
 }
 
+/* Theme: Gradient Modern (default) */
+body.theme-gradient {
+  --accent: #FFD60A;
+  --button-primary-bg: #FFD60A;
+  --button-primary-text: #111111;
+  --button-secondary-bg: #FF6B6B;
+  --text-color: #FFFFFF;
+  --muted-text: #e5e7eb;
+  background: linear-gradient(135deg, #6A11CB, #2575FC);
+  background-size: 400% 400%;
+  animation: gradient-animation 15s ease infinite;
+  color: var(--text-color);
+}
+
+/* Theme: Minimalist Neutrals */
+body.theme-neutral {
+  --accent: #3A7CA5;
+  --button-primary-bg: #00BFA6;
+  --button-primary-text: #ffffff;
+  --button-secondary-bg: #FF6F3C;
+  --text-color: #111111;
+  --muted-text: #555555;
+  background: #FAFAFA;
+  color: var(--text-color);
+  animation: none;
+}
+
+/* Theme: Dark Mode */
+body.theme-dark {
+  --accent: #3B82F6;
+  --button-primary-bg: #00FFB2;
+  --button-primary-text: #111111;
+  --button-secondary-bg: #3B82F6;
+  --text-color: #FFFFFF;
+  --muted-text: #B0B0B0;
+  background: #121212;
+  color: var(--text-color);
+  animation: none;
+}
+
+/* Back-compat with previous dark-mode toggles */
+body.dark-mode { color: #e5e7eb; }
+body.dark-mode .app .header { color: #e5e7eb; }
+body.dark-mode .app .content .card { background: #111827; color: #e5e7eb; }
+
 .app {
   display: flex;
   flex-direction: column;
@@ -49,4 +94,8 @@ body {
   100% {
     background-position: 0% 50%;
   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body { animation: none; }
 }

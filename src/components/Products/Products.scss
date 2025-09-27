@@ -5,14 +5,14 @@
 .tech-header h1 {
   font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 700;
-  color: #1a202c;
+  color: var(--text-color, #1a202c);
   margin-bottom: 0.5rem;
 }
 
 .price-location {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #38a169;
+  color: var(--accent, #38a169);
 }
 
 .tech-image {
@@ -26,6 +26,14 @@
   &:hover {
     transform: scale(1);
   }
+}
+
+.hidden-until-loaded { opacity: 0; pointer-events: none; }
+.is-visible { opacity: 1; transition: opacity 0.3s ease-in-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-image { transition: none; transform: none; }
+  .is-visible { transition: none; }
 }
 
 .tech-details {
@@ -55,19 +63,19 @@
 .tech-details strong {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #2d3748;
+  color: rgba(0, 0, 0, 1);
 }
 
 .caption {
   font-size: 0.875rem;
-  color: #718096;
+  color: var(--muted-text, #718096);
   text-transform: uppercase;
   margin-top: 0.25rem;
 }
 
 .details-btn {
-  background: #38a169;
-  color: white;
+  background: var(--button-primary-bg, #38a169);
+  color: var(--button-primary-text, white);
   border: none;
   padding: 0.75rem 2rem;
   font-weight: bold;
@@ -78,7 +86,7 @@
   margin-top: 1rem;
 
   &:hover {
-    background-color: #2f855a;
+    background-color: var(--button-primary-bg, #2f855a);
     transform: translateY(-2px);
   }
 

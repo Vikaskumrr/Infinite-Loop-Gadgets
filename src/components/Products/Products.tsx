@@ -67,8 +67,10 @@ const Product: React.FC<ProductProps> = ({ product, language, onDetailsClick }) 
           <img
             src={product?.productImage}
             alt={product?.name}
-            className="tech-image"
-            style={{ display: imageLoaded ? 'block' : 'none' }}
+            className={`tech-image ${imageLoaded ? 'is-visible' : 'hidden-until-loaded'}`}
+            loading="lazy"
+            decoding="async"
+            sizes="(max-width: 768px) 90vw, 600px"
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageLoaded(true)}
           />

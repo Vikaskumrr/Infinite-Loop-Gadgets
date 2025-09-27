@@ -129,8 +129,8 @@
 
 .add-to-cart-btn, .buy-now-btn {
   flex: 1;
-  background-color: #007bff;
-  color: white;
+  background-color: var(--button-primary-bg, #007bff);
+  color: var(--button-primary-text, white);
   border: none;
   padding: 1rem 2rem;
   font-size: 1.2rem;
@@ -138,15 +138,15 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
   &:hover {
-    background-color: #0056b3;
+    background-color: var(--button-primary-bg, #0056b3);
   }
 }
 
 .buy-now-btn {
   margin-left: 15px;
-  background-color: #28a745;
+  background-color: var(--button-secondary-bg, #28a745);
   &:hover {
-    background-color: #218838;
+    background-color: var(--button-secondary-bg, #218838);
   }
 }
 
@@ -171,4 +171,8 @@
 @keyframes slideIn {
   from { transform: translateY(-50px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-details-overlay, .product-details-modal { animation: none !important; }
 }
