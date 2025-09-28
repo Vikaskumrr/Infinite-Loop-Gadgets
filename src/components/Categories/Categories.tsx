@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './Categories.scss';
 
 const categories = [
@@ -79,7 +80,10 @@ const Categories: React.FC = () => {
             <ul className="subcategory-dropdown">
               {category.subcategories.map((sub) => (
                 <li key={sub}>
-                  <a href={`/products?category=${sub.toLowerCase()}`}>{sub}</a>
+                  <Link to={`/products?category=${sub.toLowerCase()}`} className='subcategory-item'>
+                    {/* You might want to add an icon here dynamically based on subcategory */}
+                    <span>{sub}</span>
+                  </Link>
                 </li>
               ))}
             </ul>
