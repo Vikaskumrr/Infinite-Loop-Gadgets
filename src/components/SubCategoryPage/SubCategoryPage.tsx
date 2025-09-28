@@ -1,5 +1,5 @@
 import React from 'react';
-import SnakeGame from '../components/SnakeGame/SnakeGame';
+import SnakeGame from '../SnakeGame/SnakeGame';
 import './SubCategoryPage.scss';
 
 const SubCategoryPage: React.FC = () => {

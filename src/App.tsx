@@ -4,7 +4,7 @@ import HomePage from './components/HomePage/HomePage';
 import Header from './components/Header/Header';
 import Cart from './components/Cart/Cart';
 import Loader from './components/Loader/Loader';
-import SubCategoryPage from './SubCategoryPage/SubCategoryPage';
+import SubCategoryPage from './components/SubCategoryPage/SubCategoryPage';
 import './styles/app.scss';
 
 const AccountDetailsPage = lazy(() => import('./components/AccountDetailsPage/AccountDetailsPage'));
