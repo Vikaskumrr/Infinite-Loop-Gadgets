@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Logo.scss';
 
-// A simple translation map for the logo text
 const logoTextTranslations: { [key: string]: string } = {
   en: 'Infinite Loop Gadgets',
   es: 'Dispositivos de Bucle Infinito',
@@ -11,18 +10,14 @@ const logoTextTranslations: { [key: string]: string } = {
 
 type LogoProps = {
   className?: string;
-  language: string; // Add the language prop
+  language: string;
 };
 
 export default function Logo({ className, language }: LogoProps): JSX.Element {
   const navigate = useNavigate();
 
   const goHome = () => navigate('/');
-
-  const getLogoText = () => {
-    // Return the translated text, or a default if the language is not found
-    return logoTextTranslations[language] || logoTextTranslations.en;
-  };
+  const getLogoText = () => logoTextTranslations[language] || logoTextTranslations.en;
 
   return (
     <div
@@ -38,7 +33,14 @@ export default function Logo({ className, language }: LogoProps): JSX.Element {
       }}
       aria-label="Go to home"
     >
-      {getLogoText()}
+      <img
+        src="https://cdn.builder.io/api/v1/image/assets%2Fe8d1f38f840a44c4906154cf3410267e%2F29036dda7f2a4390942a2fbf672b7ed8?format=webp&width=800"
+        alt={getLogoText()}
+        className="logo-image"
+        loading="eager"
+        decoding="async"
+      />
+      <span className="logo-text">{getLogoText()}</span>
     </div>
   );
 }
