@@ -16,12 +16,13 @@
 }
 
 .tech-image {
-  width: 100%;
-  max-width: 600px;
+  width: 80%;
+  max-width: 500px;
   height: auto;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   transform: scale(0.95);
+  margin-bottom: 16px;
   transition: transform 0.3s ease-in-out;
   &:hover {
     transform: scale(1);
@@ -45,10 +46,22 @@
   max-width: 800px;
   margin-top: 2rem;
   padding: 1.5rem;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 1);
+  background-image: url('https://cdn.builder.io/api/v1/image/assets%2Fe8d1f38f840a44c4906154cf3410267e%2Fd1a54ec11e5347eda4028f20ea8ffff4');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  color: rgba(255, 255, 255, 1);
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   gap: 1rem;
+}
+
+@media (max-width: 991px) {
+  .tech-details { display: flex; }
+}
+@media (max-width: 640px) {
+  .tech-details { display: flex; }
 }
 
 .tech-details > div {
@@ -68,14 +81,14 @@
 
 .caption {
   font-size: 0.875rem;
-  color: var(--muted-text, #718096);
+  color: var(--muted-text, #4a4a4a);
   text-transform: uppercase;
   margin-top: 0.25rem;
 }
 
 .details-btn {
-  background: var(--button-primary-bg, #38a169);
-  color: var(--button-primary-text, white);
+  background: transparent;
+  color: rgba(14, 89, 182, 0.78);
   border: none;
   padding: 0.75rem 2rem;
   font-weight: bold;
@@ -84,9 +97,10 @@
   transition: transform 0.2s ease-in-out, background-color 0.2s;
   box-shadow: 0 4px 10px rgba(56, 161, 105, 0.3);
   margin-top: 1rem;
+  text-decoration: underline;
+  text-decoration-color: rgb(0, 123, 255);
 
   &:hover {
-    background-color: var(--button-primary-bg, #2f855a);
     transform: translateY(-2px);
   }
 
