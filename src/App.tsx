@@ -4,6 +4,7 @@ import HomePage from './components/HomePage/HomePage';
 import Header from './components/Header/Header';
 import Cart from './components/Cart/Cart';
 import Loader from './components/Loader/Loader';
+import SubCategoryPage from './SubCategoryPage/SubCategoryPage';
 import './styles/app.scss';
 
 const AccountDetailsPage = lazy(() => import('./components/AccountDetailsPage/AccountDetailsPage'));
@@ -60,6 +61,7 @@ function App(): JSX.Element {
                       />} />
                       <Route path="/account" element={<AccountDetailsPage />} />
                       <Route path="/about" element={<AboutUs />} />
+                      <Route path="/products" element={<SubCategoryPage />} />
                   </Routes>
                 </Suspense>
                 {isCartOpen && (

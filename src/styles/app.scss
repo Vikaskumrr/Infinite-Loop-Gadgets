@@ -13,13 +13,13 @@ body {
 
 /* Theme: Gradient Modern (default) */
 body.theme-gradient {
-  --accent: #FFD60A;
+  --accent: #125f8f;
   --button-primary-bg: #FFD60A;
   --button-primary-text: #111111;
   --button-secondary-bg: #FF6B6B;
-  --text-color: #FFFFFF;
+  --text-color: #461616;
   --muted-text: #e5e7eb;
-  background: linear-gradient(to bottom, #000000 0%, #f5f5f5 100%);
+  background: linear-gradient(to bottom, #000000 10%, #ffffff 50%);
   background-size: 400% 400%;
   animation: gradient-animation 15s ease infinite;
   color: var(--text-color);
