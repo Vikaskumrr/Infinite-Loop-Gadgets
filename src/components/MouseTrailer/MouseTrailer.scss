@@ -1,0 +1,10 @@
+.snake-segment {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9998; // High z-index to stay on top
+  will-change: transform;
+  border-radius: 50%;
+  filter: blur(2px); // A very subtle blur for a softer look
+}
