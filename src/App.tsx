@@ -5,6 +5,7 @@ import Header from './components/Header/Header';
 import Cart from './components/Cart/Cart';
 import Loader from './components/Loader/Loader';
 import SubCategoryPage from './components/SubCategoryPage/SubCategoryPage';
+import MouseTrailer from './components/MouseTrailer/MouseTrailer';
 import './styles/app.scss';
 
 const AccountDetailsPage = lazy(() => import('./components/AccountDetailsPage/AccountDetailsPage'));
@@ -73,6 +74,7 @@ function App(): JSX.Element {
                     />
                 )}
             </main>
+            <MouseTrailer />
         </div>
     );
 }
