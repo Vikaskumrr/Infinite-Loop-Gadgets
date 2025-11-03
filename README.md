@@ -76,7 +76,7 @@ npm test
 ```
 
 ### Environment Variables
-You can define environment variables in the `.env` file. Make sure to restart the application after making changes to this file.
+You can define environment variables in the `.env example` file. Make sure to restart the application after making changes to this file.
 
 ## Contributing
 Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
