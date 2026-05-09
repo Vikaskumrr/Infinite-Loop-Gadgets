@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import './Checkout.scss';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
+import type { LanguageCode, Product, TranslationMap } from '../../types';
 
 interface CheckoutProps {
-  products: any[];
+  products: Product[];
   onClose: () => void;
-  language: string;
+  language: LanguageCode;
 }
 
 const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language }) => {
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
+  useEscapeKey(onClose);
 
-  const translations: { [key: string]: { [key: string]: string } } = {
+  const translations: TranslationMap<'checkoutTitle' | 'thankYou' | 'orderSummary' | 'total' | 'close' | 'placeOrder' | 'cancel'> = {
     en: {
       checkoutTitle: 'Checkout',
       thankYou: 'Thank you for your purchase!',
@@ -55,11 +58,11 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language }) => {
 
   return (
     <div className="checkout-overlay" onClick={onClose}>
-      <div className="checkout-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="close-btn" onClick={onClose}>
+      <div className="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title" onClick={(e) => e.stopPropagation()}>
+        <button className="close-btn" onClick={onClose} aria-label={getText('close')}>
           &times;
         </button>
-        <h3>{getText('checkoutTitle')}</h3>
+        <h3 id="checkout-title">{getText('checkoutTitle')}</h3>
         {isOrderPlaced ? (
           <p className="thank-you-message">{getText('thankYou')}</p>
         ) : (

@@ -12,9 +12,14 @@ const ChatboxAssistant: React.FC = () => {
 
   return (
     <div className="chatbox-assistant-container">
-      <div className="bird-icon-wrapper" onClick={handleToggleChatbox}>
+      <button
+        type="button"
+        className="bird-icon-wrapper"
+        onClick={handleToggleChatbox}
+        aria-label={isChatboxOpen ? 'Close AI assistant' : 'Open AI assistant'}
+      >
         <ChatboxSvg />
-      </div>
+      </button>
       {isChatboxOpen && <Chatbox onClose={handleToggleChatbox} />}
     </div>
   );

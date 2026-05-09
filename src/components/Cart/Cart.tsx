@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import './Cart.scss';
 import Checkout from '../Checkout/Checkout';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
+import type { LanguageCode, Product, TranslationMap } from '../../types';
 
 interface CartProps {
-  cartItems: any[];
+  cartItems: Product[];
   onClose: () => void;
   onRemoveFromCart: (index: number) => void;
-  language: string;
+  language: LanguageCode;
 }
 
 const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, language }) => {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  useEscapeKey(onClose);
 
-  const translations: { [key: string]: { [key: string]: string } } = {
+  const translations: TranslationMap<'cartTitle' | 'emptyCart' | 'total' | 'checkout' | 'close' | 'remove'> = {
     en: {
       cartTitle: 'Shopping Cart',
       emptyCart: 'Your cart is empty.',
@@ -58,11 +61,11 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, langu
   return (
     <>
       <div className="cart-overlay" onClick={onClose}>
-        <div className="cart-modal" onClick={(e) => e.stopPropagation()}>
-          <button className="close-btn" onClick={onClose}>
+        <div className="cart-modal" role="dialog" aria-modal="true" aria-labelledby="cart-title" onClick={(e) => e.stopPropagation()}>
+          <button className="close-btn" onClick={onClose} aria-label={getText('close')}>
             &times;
           </button>
-          <h3>{getText('cartTitle')}</h3>
+          <h3 id="cart-title">{getText('cartTitle')}</h3>
           <div className="cart-content">
             {cartItems.length === 0 ? (
               <div className="empty-cart-message">{getText('emptyCart')}</div>
@@ -74,15 +77,15 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, langu
                       <img src={item.productImage} alt={item.name} className="cart-item-image" />
                       <div className="cart-item-info">
                         <span className="cart-item-name">{item.name}</span>
-                        <span className="cart-item-price">${item.price.toFixed(2)}</span>
+                        <span className="cart-item-price">₹{item.price.toFixed(2)}</span>
                       </div>
-                      <button className="remove-btn" onClick={() => onRemoveFromCart(index)}>&times;</button>
+                      <button className="remove-btn" onClick={() => onRemoveFromCart(index)} aria-label={`${getText('remove')} ${item.name}`}>&times;</button>
                     </li>
                   ))}
                 </ul>
                 <div className="cart-summary">
                   <span className="total-label">{getText('total')}:</span>
-                  <span className="total-price">${calculateTotal().toFixed(2)}</span>
+                  <span className="total-price">₹{calculateTotal().toFixed(2)}</span>
                 </div>
                 <button className="checkout-btn" onClick={handleCheckout}>{getText('checkout')}</button>
               </>

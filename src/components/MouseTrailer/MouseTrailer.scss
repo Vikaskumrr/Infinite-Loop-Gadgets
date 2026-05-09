@@ -3,8 +3,14 @@
   top: 0;
   left: 0;
   pointer-events: none;
-  z-index: 9998; // High z-index to stay on top
+  z-index: 10;
   will-change: transform;
   border-radius: 50%;
-  filter: blur(2px); // A very subtle blur for a softer look
+  filter: blur(2px);
+}
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .snake-segment {
+    display: none;
+  }
 }

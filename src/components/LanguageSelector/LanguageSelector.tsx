@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './LanguageSelector.scss';
+import type { LanguageCode } from '../../types';
 
-// Add more languages with their native names for better user experience
-const languages = [
+const languages: Array<{ code: LanguageCode; label: string }> = [
   { code: 'en', label: 'English' },
   { code: 'es', label: 'Español' },
   { code: 'fr', label: 'Français' },
@@ -11,8 +11,8 @@ const languages = [
 ];
 
 interface LanguageSelectorProps {
-  onLanguageChange: (languageCode: string) => void;
-  selectedLanguage: string;
+  onLanguageChange: (languageCode: LanguageCode) => void;
+  selectedLanguage: LanguageCode;
 }
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({ onLanguageChange, selectedLanguage }) => {
@@ -32,7 +32,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ onLanguageChange, s
     };
   }, []);
 
-  const handleLanguageChange = (language: { code: string, label: string }) => {
+  const handleLanguageChange = (language: { code: LanguageCode; label: string }) => {
     onLanguageChange(language.code);
     setIsOpen(false);
   };

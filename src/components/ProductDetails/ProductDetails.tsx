@@ -1,31 +1,20 @@
 import React from 'react';
 import './ProductDetails.scss';
-
-interface Review {
-  user: string;
-  stars: number;
-  comment: string;
-}
+import { useEscapeKey } from '../../hooks/useEscapeKey';
+import type { LanguageCode, Product, TranslationMap } from '../../types';
 
 interface ProductDetailsProps {
-  product: {
-    name: string;
-    brand: string;
-    price: number;
-    description: string;
-    productImage: string;
-    rating: number;
-    reviews?: Review[];
-    specifications: { [key: string]: string };
-  };
+  product: Product;
   onClose: () => void;
-  onAddToCart: (product: any) => void;
-  onBuyNow: (product: any) => void;
-  language: string;
+  onAddToCart: (product: Product) => void;
+  onBuyNow: (product: Product) => void;
+  language: LanguageCode;
 }
 
 const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAddToCart, onBuyNow, language }) => {
-  const translations: { [key: string]: { [key: string]: string } } = {
+  useEscapeKey(onClose);
+
+  const translations: TranslationMap<'description' | 'rating' | 'addToCart' | 'buyNow' | 'reviews' | 'specifications' | 'close'> = {
     en: {
       description: 'Description',
       rating: 'Rating',
@@ -74,7 +63,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
         aria-labelledby="product-details-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="close-btn" onClick={onClose} aria-label="Close product details">
+        <button className="close-btn" onClick={onClose} aria-label={getText('close')}>
           &times;
         </button>
         <div className="product-details-content">
@@ -91,7 +80,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
             </div>
             <div className="description">
               <h3>{getText('description')}</h3>
-              <p>{product.description}</p>
+              <p>{product.description || 'A carefully selected gadget designed for everyday performance.'}</p>
             </div>
             {product.specifications && Object.keys(product.specifications).length > 0 && (
               <div className="specifications">

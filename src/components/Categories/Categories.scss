@@ -1,90 +1,63 @@
 .categories-menu {
   display: flex;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.35rem;
   height: 100%;
 }
 
 .category-item-wrapper {
   position: relative;
-  height: 100%;
-  display: flex;
-  align-items: center;
 }
 
 .category-item {
-  // Styles for the button itself
-  background: none;
-  border: none;
-  font-weight: 500;
+  min-height: 38px;
+  padding: 0 0.7rem;
+  color: rgba(248, 250, 252, 0.86);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
   cursor: pointer;
-  padding: 4px 8px;
-  transition: color 0.2s ease-in-out;
-  font-size: 0.95rem;
-  color: inherit;
+  font-weight: 800;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
 
-  &:hover {
-    color: #0ea5e9;
-  }
-
-  &:focus-visible {
-    outline: 3px solid #0ea5e9;
-    outline-offset: 2px;
-    border-radius: 6px;
-  }
-
+  &:hover,
   &.active {
-    color: #0ea5e9;
-    border-bottom: 0.5px solid var(--accent, #007bff);
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.18);
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .subcategory-dropdown { animation: none; }
 }
 
 .subcategory-dropdown {
   position: absolute;
-  top: 100%;
-  left: 0; 
-  background-color: #fff;
-  list-style: none;
-  padding: 0.5rem 0;
-  margin: 0.5rem 0 0;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  min-width: 180px;
+  top: calc(100% + 0.6rem);
+  left: 0;
   z-index: 100;
-  animation: fadeIn 0.3s ease-in-out;
-
-  li {
-    width: 100%;
-  }
-
-  a {
-    display: block;
-    padding: 0.75rem 1.5rem;
-    text-decoration: none;
-    color: #333;
-    transition: background-color 0.2s;
-
-    &:hover {
-      background-color: #f0f0f0;
-    }
-  }
+  min-width: 210px;
+  margin: 0;
+  padding: 0.45rem;
+  list-style: none;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.subcategory-item {
+  display: block;
+  padding: 0.75rem 0.85rem;
+  color: var(--text-color);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
 }
 
-@media (max-width: 768px) {
+.subcategory-item:hover {
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+}
+
+@media (max-width: 980px) {
   .categories-menu {
     display: none;
   }

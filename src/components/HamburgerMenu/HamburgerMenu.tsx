@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { FiHelpCircle, FiInfo, FiSettings, FiUser } from 'react-icons/fi';
 import Settings from '../Settings/Settings';
+import type { LanguageCode } from '../../types';
 import './HamburgerMenu.scss';
 
 interface HamburgerMenuProps {
-  language: string;
-  onLanguageChange: (lang: string) => void;
+  language: LanguageCode;
+  onLanguageChange: (lang: LanguageCode) => void;
 }
 
 const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ language, onLanguageChange }) => {
@@ -24,7 +26,7 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ language, onLanguageChang
       const focusables = menuRef.current?.querySelectorAll<HTMLElement>(
         'a, button, [tabindex]:not([tabindex="-1"])'
       );
-      focusables && focusables[0]?.focus();
+      focusables?.[0]?.focus();
     } else {
       document.body.style.overflow = originalOverflow;
     }
@@ -89,49 +91,51 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ language, onLanguageChang
         <div className="hamburger-line"></div>
         <div className="hamburger-line"></div>
       </button>
-      <nav
-        id="main-menu"
-        ref={menuRef as any}
-        className={`menu-list ${isOpen ? 'active' : ''}`}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Main menu"
-        onKeyDown={onKeyDownTrap}
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-      >
-        <ul className="menu-groups">
-          <li>
-            <Link to="/account" onClick={toggleMenu} className="menu-item">
-              <span className="mi-icon" aria-hidden>👤</span>
-              <span>Account</span>
-            </Link>
-          </li>
-          <li>
-            <button type="button" onClick={handleOpenSettings} className="menu-item">
-              <span className="mi-icon" aria-hidden>⚙️</span>
-              <span>Settings</span>
-            </button>
-          </li>
-          <li>
-            <Link to="/about" onClick={toggleMenu} className="menu-item">
-              <span className="mi-icon" aria-hidden>ℹ️</span>
-              <span>About</span>
-            </Link>
-          </li>
-          <li>
-            <button type="button" onClick={(e) => e.preventDefault()} className="menu-item">
-              <span className="mi-icon" aria-hidden>⁉️</span>
-              <span>Help</span>
-            </button>
-          </li>
-        </ul>
-      </nav>
       {isOpen && (
-        <div
-          className="menu-overlay"
-          onClick={toggleMenu}
-        />
+        <>
+          <nav
+            id="main-menu"
+            ref={menuRef}
+            className="menu-list active"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Main menu"
+            onKeyDown={onKeyDownTrap}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
+            <ul className="menu-groups">
+              <li>
+                <Link to="/account" onClick={toggleMenu} className="menu-item">
+                  <FiUser className="mi-icon" aria-hidden />
+                  <span>Account</span>
+                </Link>
+              </li>
+              <li>
+                <button type="button" onClick={handleOpenSettings} className="menu-item">
+                  <FiSettings className="mi-icon" aria-hidden />
+                  <span>Settings</span>
+                </button>
+              </li>
+              <li>
+                <Link to="/about" onClick={toggleMenu} className="menu-item">
+                  <FiInfo className="mi-icon" aria-hidden />
+                  <span>About</span>
+                </Link>
+              </li>
+              <li>
+                <button type="button" onClick={(e) => e.preventDefault()} className="menu-item">
+                  <FiHelpCircle className="mi-icon" aria-hidden />
+                  <span>Help</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
+          <div
+            className="menu-overlay"
+            onClick={toggleMenu}
+          />
+        </>
       )}
       {isSettingsOpen && <Settings onClose={handleCloseSettings} language={language} onLanguageChange={onLanguageChange} />}
     </>

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 
 const useExample = () => {
-    const [data, setData] = useState(null);
+    const [data, setData] = useState<unknown>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -14,8 +14,8 @@ const useExample = () => {
                 }
                 const result = await response.json();
                 setData(result);
-            } catch (error) {
-                // setError(error);
+            } catch (caughtError) {
+                setError(caughtError instanceof Error ? caughtError.message : 'Unable to fetch example data.');
             } finally {
                 setLoading(false);
             }

@@ -1,18 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './Products.scss';
 import ImageLoader from '../ImageLoader/ImageLoader';
+import type { LanguageCode, Product as ProductType, TranslationMap } from '../../types';
 
-// Define the type for a product object based on the new API data
 interface ProductProps {
-  product: {
-    name: string;
-    brand: string;
-    price: number;
-    rating: number;
-    productImage: string;
-    color: string;
-  };
-  language: string;
+  product: ProductType;
+  language: LanguageCode;
   onDetailsClick: () => void;
 }
 
@@ -23,8 +16,7 @@ const Product: React.FC<ProductProps> = ({ product, language, onDetailsClick }) 
     setImageLoaded(false);
   }, [product?.productImage]);
 
-  // A simple translation map for the captions
-  const captions: { [key: string]: { [key: string]: string } } = {
+  const captions: TranslationMap<'brand' | 'color' | 'rating' | 'fullDetails'> = {
     en: {
       brand: 'Brand',
       color: 'Color',
@@ -39,7 +31,7 @@ const Product: React.FC<ProductProps> = ({ product, language, onDetailsClick }) 
     },
     fr: {
       brand: 'Marque',
-      colour: 'Colour',
+      color: 'Couleur',
       rating: 'Évaluation',
       fullDetails: 'Détails complets →'
     }

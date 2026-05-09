@@ -1,180 +1,101 @@
-/* Container for the main header */
-.main-header {
-  display: flex;
-  justify-content: space-between; /* Pushes site name to left, hamburger to right */
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 20px; /* Adjust padding as needed */
-  background-color: #fff; /* Example background */
-  padding: 1rem 20px;
-  background-color: #fff;
-  border-bottom: 1px solid #eee;
-  position: sticky;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1001; /* Ensure header is on top */
-  z-index: 1001;
-}
-
-.site-brand {
-  .site-name {
-    font-size: 1.5rem; /* Adjust font size */
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #333; /* Site name color */
-    color: #333;
-    text-decoration: none;
-  }
-}
-
-/* Container for the hamburger icon */
 .hamburger-container {
-  display: flex; /* Always display as flex to keep it ready */
-  display: flex;
+  position: relative;
+  z-index: 1001;
+  display: inline-flex;
   flex-direction: column;
   justify-content: center;
-  gap: 3px;
-  width: 1.25rem; /* Adjust size as needed */
-  height: 1.25rem; /* Adjust size as needed */
-  width: 1.25rem;
-  height: 1.25rem;
-  cursor: pointer;
-  z-index: 1000; /* Ensure it's above other content */
-  color: #f3f4f6; /* Ensure visible on dark header */
-  color: #f3f4f6; /* Use a dark color for visibility on a light header */
-  z-index: 1000;
-  color: #f3f4f6;
-  color: #f3f4f6;
-  background: transparent;
-  border: none;
+  gap: 4px;
+  width: 42px;
+  height: 42px;
   padding: 0;
-
-    &.active {
-    color: #333;
-  }
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  cursor: pointer;
 }
 
 .hamburger-line {
-  width: 100%;
+  width: 18px;
   height: 2px;
-  background-color: currentColor;
-  border-radius: 2px;
-  transition: all 0.3s ease-in-out;
+  margin: 0 auto;
+  background: currentColor;
+  border-radius: 999px;
+  transition: transform 180ms ease, opacity 180ms ease;
 }
 
 .hamburger-container.active .hamburger-line:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
-  transform: translateY(5px) rotate(45deg);
+  transform: translateY(6px) rotate(45deg);
 }
 
 .hamburger-container.active .hamburger-line:nth-child(2) {
-  opacity: 0; /* Hides the middle line */
   opacity: 0;
 }
 
 .hamburger-container.active .hamburger-line:nth-child(3) {
-  transform: rotate(-45deg) translate(5px, -5px);
-  transform: translateY(-5px) rotate(-45deg);
+  transform: translateY(-6px) rotate(-45deg);
 }
 
-/* Styles for the hidden off-screen menu */
 .menu-list {
   position: fixed;
   top: 0;
-  right: -100%; /* Initially off-screen to the right */
-  right: -100%;
-  height: 100vh;
-  width: 10%; /* Adjust as needed */
-  background-color: transparent; /* Light background color */
-  width: 10%;
-  background-color: transparent;
-  height: 100%;
-  width: 250px; /* Use a fixed width or a more responsive value */
-  background-color: #fff; /* Give the menu a solid background */
-  width: 250px;
-  background-color: #fff;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-  transition: right 0.3s ease-in-out;
-  padding-top: 5rem; /* Space for the header/top of the page */
-  padding-top: 5rem;
-  z-index: 999;
-}
-
-/* Styles for when the menu is active (slides into view) */
-.menu-list.active {
-  right: 0; /* Slides the menu into view */
   right: 0;
+  z-index: 1000;
+  width: min(340px, 88vw);
+  height: 100vh;
+  padding: 5rem 1rem 1rem;
+  color: var(--text-color);
+  background: var(--surface-strong);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  transform: translateX(100%);
+  transition: transform 220ms ease;
 }
 
-/* Basic styling for the menu items */
-.menu-list ul {
-  list-style: none;
-  padding: 0;
+.menu-list.active {
+  transform: translateX(0);
+}
+
+.menu-groups {
+  display: grid;
+  gap: 0.5rem;
   margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.menu-list ul li a,
-.menu-list ul li button {
-  display: block;
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
   width: 100%;
+  min-height: 48px;
+  padding: 0.85rem 1rem;
+  color: var(--text-color);
   text-align: left;
-  padding: 1rem 1.5rem;
-  color: #555;
   text-decoration: none;
-  font-size: 1.2rem;
-  transition: background-color 0.2s;
-  background: none;
-  border: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
   cursor: pointer;
+  font-weight: 800;
+}
+
+.menu-item:hover {
+  background: var(--accent-soft);
+  border-color: var(--border);
 }
 
 .mi-icon {
-    padding: inherit;
+  width: 1.2rem;
+  height: 1.2rem;
+  color: var(--accent);
 }
 
-.menu-list ul li a:hover,
-.menu-list ul li button:hover {
-  background-color: #eee;
-}
-
-/* Styles for the clickable overlay */
 .menu-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
-  z-index: 998; /* Placed below the menu but above all other content */
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 998;
-}
-
-/* Global body and html styles (make sure these are in your main app.scss or similar) */
-body, html {
-  height: 100%;
-  margin: 0;
-  overflow: hidden; /* Prevent main body scroll */
-  overflow: hidden;
-}
-
-.app {
-  display: flex;
-  flex-direction: column;
-  height: 100vh; /* Ensure the app takes full viewport height */
-  overflow: hidden; /* Prevent global scrollbar if content overflows the app div */
-  height: 100vh;
-  overflow: hidden;
-}
-
-.content {
-  flex-grow: 1; /* Allows content to take up remaining space */
-  overflow-y: auto; /* Adds scrollbar only to the content area */
-  -webkit-overflow-scrolling: touch; /* For smoother scrolling on iOS */
-  padding-top: 0; /* Remove top padding if header is sticky */
-  flex-grow: 1;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-top: 0;
+  inset: 0;
+  z-index: 999;
+  background: rgba(2, 6, 23, 0.48);
+  backdrop-filter: blur(8px);
 }
