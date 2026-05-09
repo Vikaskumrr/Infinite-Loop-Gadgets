@@ -1,89 +1,81 @@
 .site-footer {
-  background-color: #111827;
-  color: #f3f4f6;
-  padding: 0px 0px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  margin-top: clamp(2rem, 5vw, 4rem);
+  color: #e5e7eb;
+  background: #0f172a;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .footer-content {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  max-width: 1200px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  width: min(1180px, 100%);
   margin: 0 auto;
-  max-height: 20px;
+  padding: clamp(2rem, 5vw, 3rem) clamp(1rem, 3vw, 2rem);
 }
 
-.footer-section {
-  flex: 0 1;
-  min-width: 200px;
-  margin: 2px;
+.footer-section h4 {
+  margin: 0 0 0.8rem;
+  font-size: 1rem;
+}
 
-  h4 {
-    margin-bottom: 1px;
-    font-size: 1.2rem;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 1px;
-    display: inline-block;
-  }
+.footer-section p,
+.footer-section a {
+  color: #cbd5e1;
+}
 
-  p, ul, .social-links a {
-    font-size: 0.9rem;
-    color: #ced4da;
-    width: 160%;
-  }
+.footer-section p {
+  max-width: 420px;
+  margin: 0;
+  line-height: 1.7;
+}
 
-  ul {
-    list-style: none;
-    padding: 0;
-    li {
-      margin-bottom: 1px;
-    }
-    a {
-      text-decoration: none;
-      color: inherit;
-      &:hover {
-        color: #fff;
-      }
-    }
-  }
+.footer-section ul {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
 
-  .social-links {
-    display: flex;
-    gap: 15px;
-    margin-top: 15px;
-    a {
-      text-decoration: none;
-      font-size: 1.5rem;
-      border: 1px solid #ced4da;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      border-radius: 50%;
-      transition: background-color 0.3s ease;
-      color: #ced4da; // Set the default icon color
+.footer-section a {
+  text-decoration: none;
+}
 
-      &:hover {
-        background-color: #0f172a;
-        color: #fff; // Change icon color on hover
-        border-color: #1f2937;
-      }
+.footer-section a:hover {
+  color: #ffffff;
+}
 
-      svg {
-        fill: dodgerblue; // This ensures the SVG's color matches the parent's text color
-      }
-    }
-  }
+.social-links {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+.social-links svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
 }
 
 .footer-bottom {
+  padding: 1rem;
+  color: #94a3b8;
   text-align: center;
-  padding-top: 10px;
-  padding-bottom: 10px;
-  margin-top: 130px;
-  border-top: 1px solid #1f2937;
-  font-size: 0.8rem;
-  color: #9ca3af;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 760px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+  }
 }

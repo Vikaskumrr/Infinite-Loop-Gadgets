@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import type { LanguageCode } from '../../types';
 import './Logo.scss';
 
 const logoTextTranslations: { [key: string]: string } = {
@@ -10,7 +11,7 @@ const logoTextTranslations: { [key: string]: string } = {
 
 type LogoProps = {
   className?: string;
-  language: string;
+  language: LanguageCode;
 };
 
 export default function Logo({ className, language }: LogoProps): JSX.Element {

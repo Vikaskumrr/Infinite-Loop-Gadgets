@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import './MouseTrailer.scss';
 
 interface Position {
@@ -6,60 +6,79 @@ interface Position {
   y: number;
 }
 
-// --- Configuration ---
-const SNAKE_LENGTH = 10; // Number of segments in the snake
-const LERP_FACTOR = 0.5; // How quickly segments follow (lower is smoother/laggier)
-const HEAD_SIZE = 10; // Size of the segment closest to the cursor
-const TAIL_SIZE = 2; // Size of the last segment
-
-// Base color for the snake (wine red)
+const SNAKE_LENGTH = 10;
+const LERP_FACTOR = 0.5;
+const HEAD_SIZE = 10;
+const TAIL_SIZE = 2;
 const BASE_COLOR = { r: 140, g: 20, b: 20 };
-const HEAD_OPACITY = 0.7; // Opacity of the head (darker)
-const TAIL_OPACITY = 0.1; // Opacity of the tail (lighter)
+const HEAD_OPACITY = 0.7;
+const TAIL_OPACITY = 0.1;
 
 const MouseTrailer: React.FC = () => {
-  // Use a ref to store segments to avoid re-renders inside the animation loop
-  const segmentsRef = useRef<Position[]>(
-    Array(SNAKE_LENGTH).fill({ x: -100, y: -100 }) // Start off-screen
-  );
-  // State to trigger re-render when segments are updated
-  const [renderSegments, setRenderSegments] = useState(segmentsRef.current);
-  const mousePositionRef = useRef<Position>({ x: 0, y: 0 });
+  const segmentRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const segmentsRef = useRef<Position[]>(Array.from({ length: SNAKE_LENGTH }, () => ({ x: -100, y: -100 })));
+  const mousePositionRef = useRef<Position>({ x: -100, y: -100 });
   const animationFrameIdRef = useRef<number>();
 
+  const segmentStyles = useMemo(
+    () =>
+      Array.from({ length: SNAKE_LENGTH }, (_, index) => {
+        const progress = index / (SNAKE_LENGTH - 1);
+        const size = HEAD_SIZE - (HEAD_SIZE - TAIL_SIZE) * progress;
+        const opacity = HEAD_OPACITY - (HEAD_OPACITY - TAIL_OPACITY) * progress;
+
+        return {
+          backgroundColor: `rgba(${BASE_COLOR.r}, ${BASE_COLOR.g}, ${BASE_COLOR.b}, ${opacity})`,
+          width: `${size}px`,
+          height: `${size}px`,
+        };
+      }),
+    [],
+  );
+
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mousePositionRef.current = { x: e.clientX, y: e.clientY };
+    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    const coarsePointer = window.matchMedia?.('(pointer: coarse)').matches ?? false;
+
+    if (reducedMotion || coarsePointer) {
+      return undefined;
+    }
+
+    const handleMouseMove = (event: MouseEvent) => {
+      mousePositionRef.current = { x: event.clientX, y: event.clientY };
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-
     const animate = () => {
-      const newSegments = [...segmentsRef.current];
-      // The head of the snake follows the mouse
+      const nextSegments = [...segmentsRef.current];
       let target = mousePositionRef.current;
 
-      // Lerp the first segment toward the mouse
-      newSegments[0] = {
-        x: newSegments[0].x + (target.x - newSegments[0].x) * LERP_FACTOR,
-        y: newSegments[0].y + (target.y - newSegments[0].y) * LERP_FACTOR,
+      nextSegments[0] = {
+        x: nextSegments[0].x + (target.x - nextSegments[0].x) * LERP_FACTOR,
+        y: nextSegments[0].y + (target.y - nextSegments[0].y) * LERP_FACTOR,
       };
 
-      // Each subsequent segment follows the one in front of it
-      for (let i = 1; i < SNAKE_LENGTH; i++) {
-        target = newSegments[i - 1];
-        newSegments[i] = {
-          x: newSegments[i].x + (target.x - newSegments[i].x) * LERP_FACTOR,
-          y: newSegments[i].y + (target.y - newSegments[i].y) * LERP_FACTOR,
+      for (let index = 1; index < SNAKE_LENGTH; index += 1) {
+        target = nextSegments[index - 1];
+        nextSegments[index] = {
+          x: nextSegments[index].x + (target.x - nextSegments[index].x) * LERP_FACTOR,
+          y: nextSegments[index].y + (target.y - nextSegments[index].y) * LERP_FACTOR,
         };
       }
 
-      segmentsRef.current = newSegments;
-      setRenderSegments(newSegments); // Trigger React to re-render
+      segmentsRef.current = nextSegments;
+      nextSegments.forEach((segment, index) => {
+        const element = segmentRefs.current[index];
+        if (!element) return;
+
+        const size = HEAD_SIZE - (HEAD_SIZE - TAIL_SIZE) * (index / (SNAKE_LENGTH - 1));
+        element.style.transform = `translate3d(${segment.x - size / 2}px, ${segment.y - size / 2}px, 0)`;
+      });
+
       animationFrameIdRef.current = requestAnimationFrame(animate);
     };
 
-    animate();
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    animationFrameIdRef.current = requestAnimationFrame(animate);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
@@ -71,24 +90,16 @@ const MouseTrailer: React.FC = () => {
 
   return (
     <>
-      {renderSegments.map((segment, index) => {
-        const progress = index / (SNAKE_LENGTH - 1); // 0 for head, 1 for tail
-        const size = HEAD_SIZE - (HEAD_SIZE - TAIL_SIZE) * progress;
-        const opacity = HEAD_OPACITY - (HEAD_OPACITY - TAIL_OPACITY) * progress;
-
-        return (
-          <div
-            key={index}
-            className="snake-segment"
-            style={{
-              backgroundColor: `rgba(${BASE_COLOR.r}, ${BASE_COLOR.g}, ${BASE_COLOR.b}, ${opacity})`,
-              width: `${size}px`,
-              height: `${size}px`,
-              transform: `translate(${segment.x - size / 2}px, ${segment.y - size / 2}px)`,
-            }}
-          />
-        );
-      })}
+      {segmentStyles.map((style, index) => (
+        <div
+          key={index}
+          ref={(element) => {
+            segmentRefs.current[index] = element;
+          }}
+          className="snake-segment"
+          style={style}
+        />
+      ))}
     </>
   );
 };

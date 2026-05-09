@@ -13,8 +13,8 @@
 .loader-spinner {
   width: clamp(56px, 10vmin, 96px);
   height: clamp(56px, 10vmin, 96px);
-  border: 6px solid rgba(0, 123, 255, 0.2);
-  border-top-color: #007bff;
+  border: 6px solid var(--accent-soft);
+  border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }

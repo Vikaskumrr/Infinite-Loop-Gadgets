@@ -1,11 +1,12 @@
 import React from 'react';
 import './SearchFilter.scss';
+import type { SortOption } from '../../types';
 
 interface SearchFilterProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  sortOption: string;
-  onSortChange: (value: string) => void;
+  sortOption: SortOption;
+  onSortChange: (value: SortOption) => void;
 }
 
 const SearchFilter: React.FC<SearchFilterProps> = ({ searchTerm, onSearchChange, sortOption, onSortChange }) => {
@@ -23,7 +24,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({ searchTerm, onSearchChange,
       </div>
       <div className="sort-select-wrapper">
         <label htmlFor="sort-select" className="visually-hidden">Sort products</label>
-        <select id="sort-select" value={sortOption} onChange={(e) => onSortChange(e.target.value)}>
+        <select id="sort-select" value={sortOption} onChange={(e) => onSortChange(e.target.value as SortOption)}>
           <option value="none">Sort By</option>
           <option value="price-asc">Price: Low to High</option>
           <option value="price-desc">Price: High to Low</option>

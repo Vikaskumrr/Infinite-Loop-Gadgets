@@ -1,32 +1,25 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import LanguageSelector from '../LanguageSelector/LanguageSelector';
+import { useEscapeKey } from '../../hooks/useEscapeKey';
+import type { LanguageCode, ThemeChoice } from '../../types';
+import { getStoredTheme, persistTheme } from '../../utils/theme';
 import './Settings.scss';
 
 interface SettingsProps {
   onClose: () => void;
-  language: string;
-  onLanguageChange: (lang: string) => void;
+  language: LanguageCode;
+  onLanguageChange: (lang: LanguageCode) => void;
 }
 
-type ThemeChoice = 'gradient' | 'neutral' | 'dark';
-
-const applyTheme = (choice: ThemeChoice) => {
-  const cls = document.body.classList;
-  cls.remove('theme-gradient', 'theme-neutral', 'theme-dark', 'dark-mode');
-  if (choice === 'gradient') cls.add('theme-gradient');
-  if (choice === 'neutral') cls.add('theme-neutral');
-  if (choice === 'dark') { cls.add('theme-dark'); cls.add('dark-mode'); }
-};
-
 const Settings: React.FC<SettingsProps> = ({ onClose, language, onLanguageChange }) => {
-  const initialTheme = (localStorage.getItem('theme') as ThemeChoice) || 'gradient';
+  const initialTheme = getStoredTheme();
   const [theme, setTheme] = useState<ThemeChoice>(initialTheme);
   const [isNotificationsEnabled, setIsNotificationsEnabled] = useState(true);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
+  useEscapeKey(onClose);
 
-  useMemo(() => {
-    applyTheme(theme);
-    localStorage.setItem('theme', theme);
+  useEffect(() => {
+    persistTheme(theme);
   }, [theme]);
 
   const handleToggleNotifications = () => {
@@ -39,9 +32,9 @@ const Settings: React.FC<SettingsProps> = ({ onClose, language, onLanguageChange
 
   return (
     <div className="settings-overlay">
-      <div className="settings-modal">
-        <button className="close-btn" onClick={onClose}>&times;</button>
-        <h2 className="settings-title">Settings</h2>
+      <div className="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <button className="close-btn" onClick={onClose} aria-label="Close settings">&times;</button>
+        <h2 className="settings-title" id="settings-title">Settings</h2>
 
         <div className="setting-item">
           <label className="setting-label" htmlFor="display-theme">Display</label>

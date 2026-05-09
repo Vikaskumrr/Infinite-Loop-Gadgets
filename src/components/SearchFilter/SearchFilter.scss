@@ -1,74 +1,50 @@
 .search-filter-container {
-  display: flex;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: minmax(180px, 360px) minmax(138px, auto);
   align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
 }
 
-.visually-hidden {
-  position: absolute !important;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-
-.search-input-wrapper {
-  position: relative;
-  input {
-    padding: 6px 12px;
-    border: 1px solid #ddd;
-    border-radius: 9999px;
-    width: 220px;
-    outline: none;
-    transition: box-shadow 0.2s;
-    &:focus {
-      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent, #007bff) 40%, transparent);
-    }
-  }
-}
-
+.search-input-wrapper,
 .sort-select-wrapper {
-  select {
-    padding: 6px 12px;
-    border: 1px solid #ddd;
-    border-radius: 9999px;
-    background-color: #fff;
-    cursor: pointer;
-    outline: none;
-    transition: border-color 0.2s;
-    &:hover {
-      border-color: var(--accent, #007bff);
-    }
-  }
+  min-width: 0;
 }
 
-@media (max-width: 768px) {
+.search-input-wrapper input,
+.sort-select-wrapper select {
+  width: 100%;
+  height: 42px;
+  padding: 0 0.9rem;
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  outline: none;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.search-input-wrapper input::placeholder {
+  color: rgba(248, 250, 252, 0.68);
+}
+
+.sort-select-wrapper select {
+  cursor: pointer;
+}
+
+.sort-select-wrapper option {
+  color: #0f172a;
+}
+
+.search-input-wrapper input:hover,
+.sort-select-wrapper select:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.36);
+}
+
+@media (max-width: 640px) {
   .search-filter-container {
-    flex-direction: column;
-    width: 100%;
-    .search-input-wrapper, .sort-select-wrapper {
-      width: 100%;
-      input, select {
-        width: 100%;
-      }
-    }
+    grid-template-columns: 1fr;
   }
-}
-
-/* Dark header overrides */
-.navbar .search-input-wrapper input {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.18);
-  color: #f3f4f6;
-}
-.navbar .search-input-wrapper input::placeholder { color: rgba(243, 244, 246, 0.7); }
-
-.navbar .sort-select-wrapper select {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.18);
-  color: #f3f4f6;
 }

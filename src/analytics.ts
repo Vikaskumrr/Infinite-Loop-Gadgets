@@ -1,4 +1,4 @@
-const gaId = process.env.REACT_APP_GA_ID as string | undefined;
+const gaId = import.meta.env.VITE_GA_ID as string | undefined;
 
 if (gaId) {
   const script = document.createElement('script');
@@ -6,9 +6,13 @@ if (gaId) {
   script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
   document.head.appendChild(script);
 
-  (window as any).dataLayer = (window as any).dataLayer || [];
-  function gtag(...args: any[]): void { (window as any).dataLayer.push(args); }
-  (window as any).gtag = gtag;
+  const analyticsWindow = window as typeof window & {
+    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
+  };
+  analyticsWindow.dataLayer = analyticsWindow.dataLayer || [];
+  const gtag = (...args: unknown[]): void => { analyticsWindow.dataLayer?.push(args); };
+  analyticsWindow.gtag = gtag;
   gtag('js', new Date());
   gtag('config', gaId);
 }

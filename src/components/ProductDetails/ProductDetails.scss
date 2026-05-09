@@ -1,166 +1,167 @@
 .product-details-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  inset: 0;
   z-index: 1000;
-  animation: fadeIn 0.3s ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(2, 6, 23, 0.68);
+  backdrop-filter: blur(12px);
+  animation: fadeIn 180ms ease-out;
 }
 
 .product-details-modal {
   position: relative;
-  background-color: #fff;
-  border-radius: 12px;
-  max-width: 900px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  padding: 2rem;
-  animation: slideIn 0.4s ease-out;
+  width: min(980px, 100%);
+  max-height: min(86vh, 820px);
+  overflow: auto;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  color: var(--text-color);
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 220ms ease-out;
 }
 
 .close-btn {
   position: absolute;
-  top: 10px;
-  right: 15px;
-  font-size: 2rem;
-  background: none;
-  border: none;
+  top: 0.85rem;
+  right: 0.85rem;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  color: var(--muted-text);
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  border-radius: 999px;
   cursor: pointer;
-  color: #333;
+  font-size: 1.4rem;
+  line-height: 1;
 }
 
 .product-details-content {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.image-section {
-  flex: 1;
-  min-width: 300px;
-  img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-  }
-}
-
-.info-section {
-  flex: 2;
-  min-width: 300px;
-}
-
-.info-section h2 {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.info-section .model {
-  color: #555;
-  font-size: 1.5rem;
-}
-
-.info-section .price {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #007bff;
-  margin-bottom: 1rem;
-}
-
-.rating {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  .rating-label {
-    font-weight: bold;
-    margin-right: 0.5rem;
-  }
-  .stars {
-    display: flex;
-    .star {
-      font-size: 1.5rem;
-      color: #ccc;
-      &.filled {
-        color: gold;
-      }
-    }
-  }
-}
-
-.description, .specifications {
-  margin-bottom: 1.5rem;
-  h3 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-  }
-  p {
-    line-height: 1.6;
-    color: #444;
-  }
-}
-
-.specifications ul {
-  list-style: none;
-  padding: 0;
-  li {
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
-    color: #555;
-    strong {
-      color: #333;
-    }
-  }
-}
-
-.button-group {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.add-to-cart-btn, .buy-now-btn {
-  flex: 1;
-  background-color: var(--button-primary-bg, #007bff);
-  color: var(--button-primary-text, white);
-  border: none;
-  padding: 1rem 2rem;
-  font-size: 1.2rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  &:hover {
-    background-color: var(--button-primary-bg, #0056b3);
-  }
-}
-
-.buy-now-btn {
-  margin-left: 15px;
-  background-color: var(--button-secondary-bg, #28a745);
-  &:hover {
-    background-color: var(--button-secondary-bg, #218838);
-  }
+  display: grid;
+  grid-template-columns: minmax(220px, 0.85fr) minmax(280px, 1.15fr);
+  gap: clamp(1.25rem, 4vw, 2.5rem);
+  align-items: start;
 }
 
 .product-image {
-  width: 40%;
-  margin-top: 16%;
-  margin-right: 5%;
+  width: 100%;
+  max-height: 520px;
+  object-fit: contain;
+  padding: 1rem;
+  background:
+    radial-gradient(circle at 50% 45%, var(--accent-soft), transparent 62%),
+    linear-gradient(135deg, rgba(148, 163, 184, 0.12), transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
 }
 
-.social-proof {
-  font-size: 0.9rem;
-  color: #777;
-  margin-top: -10px;
-  margin-bottom: 15px;
+.product-info h2 {
+  margin: 0 2rem 0.5rem 0;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1;
+}
+
+.social-proof,
+.product-brand {
+  color: var(--muted-text);
+}
+
+.product-price {
+  margin: 0.75rem 0;
+  color: var(--accent-strong);
+  font-size: 1.65rem;
+  font-weight: 900;
+}
+
+.rating {
+  display: inline-flex;
+  margin-bottom: 1rem;
+  padding: 0.45rem 0.7rem;
+  color: #92400e;
+  background: rgba(250, 204, 21, 0.18);
+  border: 1px solid rgba(250, 204, 21, 0.36);
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.description,
+.specifications,
+.reviews {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.description h3,
+.specifications h3,
+.reviews h3 {
+  margin: 0 0 0.65rem;
+  font-size: 1rem;
+}
+
+.description p,
+.specifications li,
+.reviews li {
+  color: var(--muted-text);
+  line-height: 1.65;
+}
+
+.specifications ul,
+.reviews ul {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.specifications li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.review-user {
+  color: var(--text-color);
+  font-weight: 800;
+}
+
+.review-stars {
+  color: #f59e0b;
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.add-to-cart-btn,
+.buy-now-btn {
+  min-height: 48px;
+  padding: 0.85rem 1rem;
+  color: var(--button-primary-text);
+  background: var(--button-primary-bg);
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.buy-now-btn {
+  color: #ffffff;
+  background: var(--button-secondary-bg);
 }
 
 @keyframes fadeIn {
@@ -169,10 +170,13 @@
 }
 
 @keyframes slideIn {
-  from { transform: translateY(-50px); opacity: 0; }
+  from { transform: translateY(18px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .product-details-overlay, .product-details-modal { animation: none !important; }
+@media (max-width: 760px) {
+  .product-details-content,
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
 }

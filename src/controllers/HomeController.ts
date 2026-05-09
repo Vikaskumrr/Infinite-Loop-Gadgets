@@ -1,5 +1,5 @@
 export class HomeController {
-    private state: any;
+    private state: Record<string, unknown>;
 
     constructor() {
         this.state = {};
@@ -9,7 +9,7 @@ export class HomeController {
         return this.state;
     }
 
-    public setState(newState: any) {
+    public setState(newState: Record<string, unknown>) {
         this.state = { ...this.state, ...newState };
     }
 
