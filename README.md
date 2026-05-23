@@ -1,6 +1,6 @@
 # Infinite Loop Gadgets
 
-Infinite Loop Gadgets is a Vite + React + TypeScript ecommerce demo for browsing premium tech products, viewing product details, managing a local cart, and walking through a demo checkout flow.
+Infinite Loop Gadgets is a Vite + React + TypeScript ecommerce demo for browsing premium tech products, viewing product details, managing a persistent local cart, placing local demo orders, and maintaining an anonymous browser-based profile.
 
 ## Tech Stack
 
@@ -50,11 +50,11 @@ Product data defaults to the existing JSONBin bin. `VITE_PRODUCTS_API_URL` can p
 ## Routes
 
 - `/` - Product storefront
-- `/account` - Account details page
+- `/account` - Local anonymous profile and order history
 - `/about` - About page
-- `/products` - Category/subcategory placeholder experience
+- `/products` - Category product browsing, optionally filtered with `?category=smartphones`
 
-No backend, database, real payment processing, or authentication service is implemented in this repository.
+No backend, database, real payment processing, or external authentication service is implemented in this repository. Profile, cart, and demo order data are stored in browser `localStorage`.
 
 ## Validation
 

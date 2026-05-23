@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { filterAndSortProducts } from '../hooks/useProducts';
 import { normalizeProductsResponse } from '../services/products';
+import { enrichedProducts } from '../data/enrichedProducts';
+import { productMatchesCategory } from '../utils/products';
 import type { Product } from '../types';
 
 const products: Product[] = [
@@ -27,8 +29,27 @@ describe('product utilities', () => {
   });
 
   test('normalizes JSONBin and direct product responses', () => {
-    expect(normalizeProductsResponse({ record: { products } })).toHaveLength(3);
-    expect(normalizeProductsResponse({ products })).toHaveLength(3);
+    expect(normalizeProductsResponse({ record: { products } }).length).toBeGreaterThanOrEqual(products.length);
+    expect(normalizeProductsResponse({ products }).length).toBeGreaterThanOrEqual(products.length);
+  });
+
+  test('adds source-backed fallback products to the catalog', () => {
+    const normalizedProducts = normalizeProductsResponse({ record: { products } });
+
+    expect(normalizedProducts).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        name: 'Google Pixel 8 Pro',
+        sourceUrl: expect.stringContaining('store.google.com'),
+        features: expect.arrayContaining(['Tensor G3 processor']),
+      }),
+    ]));
+  });
+
+  test('uses structured categories before text matching', () => {
+    const switchOled = enrichedProducts.find((product) => product.name === 'Nintendo Switch OLED Model');
+
+    expect(switchOled).toBeDefined();
+    expect(productMatchesCategory(switchOled as Product, 'Consoles')).toBe(true);
   });
 
   test('rejects malformed product responses', () => {

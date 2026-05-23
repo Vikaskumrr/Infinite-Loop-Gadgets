@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 import './Cart.scss';
 import Checkout from '../Checkout/Checkout';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
-import type { LanguageCode, Product, TranslationMap } from '../../types';
+import OptimizedImage from '../OptimizedImage/OptimizedImage';
+import type { LanguageCode, Order, Product, TranslationMap } from '../../types';
 
 interface CartProps {
   cartItems: Product[];
   onClose: () => void;
   onRemoveFromCart: (index: number) => void;
   language: LanguageCode;
+  onOrderPlaced?: (order: Order) => void;
 }
 
-const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, language }) => {
+const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, language, onOrderPlaced }) => {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   useEscapeKey(onClose);
 
@@ -74,7 +76,7 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, langu
                 <ul className="cart-items-list">
                   {cartItems.map((item, index) => (
                     <li key={index} className="cart-item">
-                      <img src={item.productImage} alt={item.name} className="cart-item-image" />
+                      <OptimizedImage src={item.productImage} alt={item.name} className="cart-item-image" sizes="64px" />
                       <div className="cart-item-info">
                         <span className="cart-item-name">{item.name}</span>
                         <span className="cart-item-price">₹{item.price.toFixed(2)}</span>
@@ -98,6 +100,7 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, langu
           products={cartItems}
           onClose={handleCloseCheckout}
           language={language}
+          onOrderPlaced={onOrderPlaced}
         />
       )}
     </>

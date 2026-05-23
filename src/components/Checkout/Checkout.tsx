@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import './Checkout.scss';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
+import OptimizedImage from '../OptimizedImage/OptimizedImage';
 import type { LanguageCode, Product, TranslationMap } from '../../types';
+import type { Order } from '../../types';
 
 interface CheckoutProps {
   products: Product[];
   onClose: () => void;
   language: LanguageCode;
+  onOrderPlaced?: (order: Order) => void;
 }
 
-const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language }) => {
+const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrderPlaced }) => {
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   useEscapeKey(onClose);
 
@@ -52,8 +55,14 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language }) => {
   };
 
   const handlePlaceOrder = () => {
+    onOrderPlaced?.({
+      id: `ILG-${Date.now().toString(36).toUpperCase()}`,
+      items: products,
+      total: calculateTotal(),
+      createdAt: new Date().toISOString(),
+      status: 'placed',
+    });
     setIsOrderPlaced(true);
-    // You can add logic here to process the order, e.g., send data to a server
   };
 
   return (
@@ -72,7 +81,7 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language }) => {
               <ul className="order-items-list">
                 {products.map((item, index) => (
                   <li key={index} className="order-item">
-                    <img src={item.productImage} alt={item.name} className="order-item-image" />
+                    <OptimizedImage src={item.productImage} alt={item.name} className="order-item-image" sizes="56px" />
                     <div className="order-item-info">
                       <span className="order-item-name">{item.name}</span>
                       <span className="order-item-price">₹{item.price.toFixed(2)}</span>

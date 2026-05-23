@@ -1,25 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { categories, slugify } from '../../data/categories';
 import './Categories.scss';
-
-const categories = [
-  {
-    name: 'Electronics',
-    subcategories: ['Laptops', 'Smartphones', 'Tablets', 'Wearables']
-  },
-  {
-    name: 'Gaming',
-    subcategories: ['Consoles', 'PC Gaming', 'Accessories']
-  },
-  {
-    name: 'Home & Office',
-    subcategories: ['Smart Home', 'Printers', 'Monitors']
-  },
-  {
-    name: 'Accessories',
-    subcategories: ['Headphones', 'Speakers', 'Power Banks']
-  }
-];
 
 const Categories: React.FC = () => {
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
@@ -80,8 +62,7 @@ const Categories: React.FC = () => {
             <ul className="subcategory-dropdown">
               {category.subcategories.map((sub) => (
                 <li key={sub}>
-                  <Link to={`/products?category=${sub.toLowerCase()}`} className='subcategory-item'>
-                    {/* You might want to add an icon here dynamically based on subcategory */}
+                  <Link to={`/products?category=${slugify(sub)}`} className='subcategory-item'>
                     <span>{sub}</span>
                   </Link>
                 </li>

@@ -59,7 +59,7 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: /shopping cart/i })).toBeInTheDocument();
   });
 
-  test('shows a resilient API error state', async () => {
+  test('falls back to the local enriched catalog when the API fails', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -70,8 +70,8 @@ describe('App', () => {
 
     renderApp();
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(/product feed unavailable/i);
-    expect(screen.getByText(/503/i)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /google pixel 8 pro/i })).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   test('filters to an empty search state without losing navigation', async () => {

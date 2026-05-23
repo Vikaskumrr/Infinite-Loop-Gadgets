@@ -7,16 +7,28 @@ import Loader from './components/Loader/Loader';
 import SubCategoryPage from './components/SubCategoryPage/SubCategoryPage';
 import MouseTrailer from './components/MouseTrailer/MouseTrailer';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
-import type { LanguageCode, Product, SortOption } from './types';
+import { useLocalStorageState } from './hooks/useLocalStorageState';
+import type { LanguageCode, Order, Product, SortOption, UserProfile } from './types';
 import './styles/app.scss';
 
 const AccountDetailsPage = lazy(() => import('./components/AccountDetailsPage/AccountDetailsPage'));
 const AboutUs = lazy(() => import('./components/AboutUs/AboutUs'));
 
+const defaultProfile: UserProfile = {
+    id: 'anonymous-shopper',
+    name: 'Guest Shopper',
+    email: 'guest@infiniteloopgadgets.example',
+    mobileNumber: '',
+    address: '',
+    createdAt: new Date().toISOString(),
+};
+
 function App(): JSX.Element {
     const [language, setLanguage] = useState<LanguageCode>('en');
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const [cartItems, setCartItems] = useState<Product[]>([]);
+    const [cartItems, setCartItems] = useLocalStorageState<Product[]>('ilg.cart', []);
+    const [orders, setOrders] = useLocalStorageState<Order[]>('ilg.orders', []);
+    const [profile, setProfile] = useLocalStorageState<UserProfile>('ilg.profile', defaultProfile);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortOption, setSortOption] = useState<SortOption>('none');
 
@@ -58,10 +70,11 @@ function App(): JSX.Element {
                           setCartItems={setCartItems}
                           searchTerm={searchTerm}
                           sortOption={sortOption}
+                          onOrderPlaced={(order) => setOrders((currentOrders) => [order, ...currentOrders])}
                       />} />
-                      <Route path="/account" element={<AccountDetailsPage />} />
+                      <Route path="/account" element={<AccountDetailsPage profile={profile} orders={orders} onProfileChange={setProfile} />} />
                       <Route path="/about" element={<AboutUs />} />
-                      <Route path="/products" element={<SubCategoryPage />} />
+                      <Route path="/products" element={<SubCategoryPage language={language} onAddToCart={(product) => setCartItems((items) => [...items, product])} />} />
                   </Routes>
                 </Suspense>
                 {isCartOpen && (
@@ -70,6 +83,10 @@ function App(): JSX.Element {
                         onClose={handleCloseCart}
                         onRemoveFromCart={handleRemoveFromCart}
                         language={language}
+                        onOrderPlaced={(order) => {
+                            setOrders((currentOrders) => [order, ...currentOrders]);
+                            setCartItems([]);
+                        }}
                     />
                 )}
             </main>

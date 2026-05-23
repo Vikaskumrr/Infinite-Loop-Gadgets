@@ -1,7 +1,9 @@
 import React from 'react';
 import './ProductDetails.scss';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
+import OptimizedImage from '../OptimizedImage/OptimizedImage';
 import type { LanguageCode, Product, TranslationMap } from '../../types';
+import { formatProductPrice } from '../../utils/products';
 
 interface ProductDetailsProps {
   product: Product;
@@ -14,10 +16,11 @@ interface ProductDetailsProps {
 const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAddToCart, onBuyNow, language }) => {
   useEscapeKey(onClose);
 
-  const translations: TranslationMap<'description' | 'rating' | 'addToCart' | 'buyNow' | 'reviews' | 'specifications' | 'close'> = {
+  const translations: TranslationMap<'description' | 'rating' | 'features' | 'addToCart' | 'buyNow' | 'reviews' | 'specifications' | 'close'> = {
     en: {
       description: 'Description',
       rating: 'Rating',
+      features: 'Key features',
       addToCart: 'Add to Cart',
       buyNow: 'Buy Now',
       reviews: 'Customer Reviews',
@@ -27,6 +30,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
     es: {
       description: 'Descripción',
       rating: 'Calificación',
+      features: 'Características clave',
       addToCart: 'Añadir al carrito',
       buyNow: 'Comprar ahora',
       reviews: 'Reseñas de clientes',
@@ -36,6 +40,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
     fr: {
       description: 'La description',
       rating: 'Évaluation',
+      features: 'Fonctionnalités clés',
       addToCart: 'Ajouter au panier',
       buyNow: 'Acheter maintenant',
       reviews: 'Avis des clients',
@@ -67,21 +72,36 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
           &times;
         </button>
         <div className="product-details-content">
-          <img src={product.productImage} alt={product.name} className="product-image" loading="lazy" decoding="async" />
+          <OptimizedImage src={product.productImage} alt={product.name} className="product-image" sizes="(max-width: 760px) 92vw, 420px" />
           <div className="product-info">
             <h2 id="product-details-title">{product.name}</h2>
             <p className="social-proof">
             <span role="img" aria-label="eye">👁️</span> 20 people viewed this recently.
             </p>
-            <p className="product-brand">{product.brand}</p>
-            <p className="product-price">₹{product.price.toFixed(2)}</p>
+            <p className="product-brand">
+              {product.brand}
+              {product.subcategory ? <span>{product.subcategory}</span> : null}
+            </p>
+            <p className={`product-price ${product.priceStatus === 'todo' ? 'needs-verification' : ''}`}>
+              {formatProductPrice(product)}
+            </p>
             <div className="rating">
               {getText('rating')}: {product.rating} ★
             </div>
             <div className="description">
               <h3>{getText('description')}</h3>
-              <p>{product.description || 'A carefully selected gadget designed for everyday performance.'}</p>
+                <p>{product.description || 'A carefully selected gadget designed for everyday performance.'}</p>
             </div>
+            {product.features && product.features.length > 0 && (
+              <div className="features">
+                <h3>{getText('features')}</h3>
+                <ul>
+                  {product.features.map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {product.specifications && Object.keys(product.specifications).length > 0 && (
               <div className="specifications">
                 <h3>{getText('specifications')}</h3>
@@ -106,6 +126,11 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
                   ))}
                 </ul>
               </div>
+            )}
+            {product.sourceUrl && (
+              <a className="product-source-link" href={product.sourceUrl} target="_blank" rel="noreferrer">
+                View source details
+              </a>
             )}
             <div className="action-buttons">
               <button className="add-to-cart-btn" onClick={() => onAddToCart(product)}>
