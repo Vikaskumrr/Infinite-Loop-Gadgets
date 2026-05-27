@@ -1,7 +1,9 @@
 import React from 'react';
 import './ProductDetails.scss';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
+import OptimizedImage from '../OptimizedImage/OptimizedImage';
 import type { LanguageCode, Product, TranslationMap } from '../../types';
+import { formatProductPrice } from '../../utils/products';
 
 interface ProductDetailsProps {
   product: Product;
@@ -9,15 +11,17 @@ interface ProductDetailsProps {
   onAddToCart: (product: Product) => void;
   onBuyNow: (product: Product) => void;
   language: LanguageCode;
+  presentation?: 'modal' | 'page';
 }
 
-const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAddToCart, onBuyNow, language }) => {
+const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAddToCart, onBuyNow, language, presentation = 'modal' }) => {
   useEscapeKey(onClose);
 
-  const translations: TranslationMap<'description' | 'rating' | 'addToCart' | 'buyNow' | 'reviews' | 'specifications' | 'close'> = {
+  const translations: TranslationMap<'description' | 'rating' | 'features' | 'addToCart' | 'buyNow' | 'reviews' | 'specifications' | 'close'> = {
     en: {
       description: 'Description',
       rating: 'Rating',
+      features: 'Key features',
       addToCart: 'Add to Cart',
       buyNow: 'Buy Now',
       reviews: 'Customer Reviews',
@@ -27,6 +31,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
     es: {
       description: 'Descripción',
       rating: 'Calificación',
+      features: 'Características clave',
       addToCart: 'Añadir al carrito',
       buyNow: 'Comprar ahora',
       reviews: 'Reseñas de clientes',
@@ -36,6 +41,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
     fr: {
       description: 'La description',
       rating: 'Évaluation',
+      features: 'Fonctionnalités clés',
       addToCart: 'Ajouter au panier',
       buyNow: 'Acheter maintenant',
       reviews: 'Avis des clients',
@@ -54,34 +60,50 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
     return filledStars + emptyStars;
   };
 
-  return (
-    <div className="product-details-overlay" onClick={onClose}>
+  const content = (
       <div
-        className="product-details-modal"
+        className={`product-details-modal ${presentation === 'page' ? 'product-details-page' : ''}`}
         role="dialog"
-        aria-modal="true"
+        aria-modal={presentation === 'modal' ? 'true' : undefined}
         aria-labelledby="product-details-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="close-btn" onClick={onClose} aria-label={getText('close')}>
-          &times;
-        </button>
+        {presentation === 'modal' && (
+          <button className="close-btn" onClick={onClose} aria-label={getText('close')}>
+            &times;
+          </button>
+        )}
         <div className="product-details-content">
-          <img src={product.productImage} alt={product.name} className="product-image" loading="lazy" decoding="async" />
+          <OptimizedImage src={product.productImage} alt={product.name} className="product-image" sizes="(max-width: 760px) 92vw, 420px" />
           <div className="product-info">
             <h2 id="product-details-title">{product.name}</h2>
             <p className="social-proof">
             <span role="img" aria-label="eye">👁️</span> 20 people viewed this recently.
             </p>
-            <p className="product-brand">{product.brand}</p>
-            <p className="product-price">₹{product.price.toFixed(2)}</p>
+            <p className="product-brand">
+              {product.brand}
+              {product.subcategory ? <span>{product.subcategory}</span> : null}
+            </p>
+            <p className={`product-price ${product.priceStatus === 'todo' ? 'needs-verification' : ''}`}>
+              {formatProductPrice(product)}
+            </p>
             <div className="rating">
               {getText('rating')}: {product.rating} ★
             </div>
             <div className="description">
               <h3>{getText('description')}</h3>
-              <p>{product.description || 'A carefully selected gadget designed for everyday performance.'}</p>
+                <p>{product.description || 'A carefully selected gadget designed for everyday performance.'}</p>
             </div>
+            {product.features && product.features.length > 0 && (
+              <div className="features">
+                <h3>{getText('features')}</h3>
+                <ul>
+                  {product.features.map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {product.specifications && Object.keys(product.specifications).length > 0 && (
               <div className="specifications">
                 <h3>{getText('specifications')}</h3>
@@ -107,6 +129,11 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
                 </ul>
               </div>
             )}
+            {product.sourceUrl && (
+              <a className="product-source-link" href={product.sourceUrl} target="_blank" rel="noreferrer">
+                View source details
+              </a>
+            )}
             <div className="action-buttons">
               <button className="add-to-cart-btn" onClick={() => onAddToCart(product)}>
                 {getText('addToCart')}
@@ -115,9 +142,30 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
                 {getText('buyNow')}
               </button>
             </div>
+            <div className="mobile-product-cta" aria-label="Product actions">
+              <div>
+                <span className="mobile-product-cta__price">{formatProductPrice(product)}</span>
+                <span className="mobile-product-cta__stock">In stock</span>
+              </div>
+              <button className="add-to-cart-btn" onClick={() => onAddToCart(product)}>
+                Add
+              </button>
+              <button className="buy-now-btn" onClick={() => onBuyNow(product)}>
+                {getText('buyNow')}
+              </button>
+            </div>
           </div>
         </div>
       </div>
+  );
+
+  if (presentation === 'page') {
+    return <div className="product-details-route">{content}</div>;
+  }
+
+  return (
+    <div className="product-details-overlay" onClick={onClose}>
+      {content}
     </div>
   );
 };

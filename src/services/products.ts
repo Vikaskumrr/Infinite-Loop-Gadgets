@@ -1,4 +1,5 @@
 import type { JsonBinResponse, Product } from '../types';
+import { enrichProducts, enrichedProducts } from '../data/enrichedProducts';
 
 const DEFAULT_BIN_ID = '68bf1a1ed0ea881f4076533c';
 const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
@@ -36,7 +37,7 @@ export const normalizeProductsResponse = (payload: JsonBinResponse | ProductApiR
     throw new Error('Invalid product data format from API.');
   }
 
-  return products;
+  return enrichProducts(products);
 };
 
 type ProductApiRecordLike = {
@@ -44,12 +45,17 @@ type ProductApiRecordLike = {
 };
 
 export const fetchProducts = async (): Promise<Product[]> => {
-  const response = await fetch(getProductsUrl());
+  try {
+    const response = await fetch(getProductsUrl());
 
-  if (!response.ok) {
-    throw new Error(`API request failed with status: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`API request failed with status: ${response.status}`);
+    }
+
+    const payload = (await response.json()) as JsonBinResponse | ProductApiRecordLike;
+    return normalizeProductsResponse(payload);
+  } catch (error) {
+    console.warn('Using local enriched catalog fallback after product API failure.', error);
+    return enrichedProducts;
   }
-
-  const payload = (await response.json()) as JsonBinResponse | ProductApiRecordLike;
-  return normalizeProductsResponse(payload);
 };

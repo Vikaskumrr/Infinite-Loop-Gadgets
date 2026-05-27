@@ -11,11 +11,17 @@ const products: Product[] = [
 describe('Checkout', () => {
   test('places a demo order without leaving the modal', async () => {
     const user = userEvent.setup();
+    const handleOrderPlaced = vi.fn();
 
-    render(<Checkout products={products} onClose={vi.fn()} language="en" />);
+    render(<Checkout products={products} onClose={vi.fn()} language="en" onOrderPlaced={handleOrderPlaced} />);
     await user.click(screen.getByRole('button', { name: /place order/i }));
 
-    expect(screen.getByText(/thank you for your purchase/i)).toBeInTheDocument();
+    expect(await screen.findByText(/thank you for your purchase/i)).toBeInTheDocument();
+    expect(handleOrderPlaced).toHaveBeenCalledWith(expect.objectContaining({
+      items: products,
+      status: 'placed',
+      total: 79999,
+    }));
   });
 
   test('closes with Escape', async () => {

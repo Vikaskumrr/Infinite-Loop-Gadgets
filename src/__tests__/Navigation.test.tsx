@@ -43,9 +43,10 @@ describe('navigation', () => {
     expect(await screen.findByRole('heading', { name: /about our company/i })).toBeInTheDocument();
   });
 
-  test('preserves the products placeholder route', async () => {
+  test('renders the products category route', async () => {
     renderAt('/products');
 
-    expect(await screen.findByRole('heading', { name: /page under construction/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /electronics/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /add to cart/i }).length).toBeGreaterThan(0);
   });
 });

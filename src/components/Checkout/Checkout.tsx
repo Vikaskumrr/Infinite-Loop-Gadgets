@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import './Checkout.scss';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
+import OptimizedImage from '../OptimizedImage/OptimizedImage';
 import type { LanguageCode, Product, TranslationMap } from '../../types';
+import type { Order } from '../../types';
 
 interface CheckoutProps {
   products: Product[];
   onClose: () => void;
   language: LanguageCode;
+  onOrderPlaced?: (order: Order) => void;
 }
 
-const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language }) => {
+const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrderPlaced }) => {
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   useEscapeKey(onClose);
 
   const translations: TranslationMap<'checkoutTitle' | 'thankYou' | 'orderSummary' | 'total' | 'close' | 'placeOrder' | 'cancel'> = {
@@ -52,8 +56,18 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language }) => {
   };
 
   const handlePlaceOrder = () => {
-    setIsOrderPlaced(true);
-    // You can add logic here to process the order, e.g., send data to a server
+    setIsProcessing(true);
+    onOrderPlaced?.({
+      id: `ILG-${Date.now().toString(36).toUpperCase()}`,
+      items: products,
+      total: calculateTotal(),
+      createdAt: new Date().toISOString(),
+      status: 'placed',
+    });
+    window.setTimeout(() => {
+      setIsProcessing(false);
+      setIsOrderPlaced(true);
+    }, 450);
   };
 
   return (
@@ -66,13 +80,31 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language }) => {
         {isOrderPlaced ? (
           <p className="thank-you-message">{getText('thankYou')}</p>
         ) : (
-          <>
+          <div className="checkout-layout">
+            <section className="checkout-form" aria-label="Checkout information">
+              <div className="checkout-field">
+                <label htmlFor="checkout-email">Email</label>
+                <input id="checkout-email" type="email" placeholder="you@example.com" autoComplete="email" />
+              </div>
+              <div className="checkout-field">
+                <label htmlFor="checkout-name">Full name</label>
+                <input id="checkout-name" type="text" placeholder="Guest Shopper" autoComplete="name" />
+              </div>
+              <div className="coupon-row">
+                <label htmlFor="coupon-code">Coupon</label>
+                <div>
+                  <input id="coupon-code" type="text" placeholder="SAVE10" />
+                  <button type="button">Apply Coupon</button>
+                </div>
+              </div>
+              <p className="checkout-trust">Secure demo checkout. Your cart is safe and no real payment is processed.</p>
+            </section>
             <div className="order-summary">
               <h4>{getText('orderSummary')}</h4>
               <ul className="order-items-list">
                 {products.map((item, index) => (
                   <li key={index} className="order-item">
-                    <img src={item.productImage} alt={item.name} className="order-item-image" />
+                    <OptimizedImage src={item.productImage} alt={item.name} className="order-item-image" sizes="56px" />
                     <div className="order-item-info">
                       <span className="order-item-name">{item.name}</span>
                       <span className="order-item-price">₹{item.price.toFixed(2)}</span>
@@ -86,14 +118,14 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language }) => {
               </div>
             </div>
             <div className="checkout-buttons">
-              <button className="btn-primary" onClick={handlePlaceOrder}>
-                {getText('placeOrder')}
+              <button className="btn-primary" onClick={handlePlaceOrder} disabled={isProcessing} aria-busy={isProcessing}>
+                {isProcessing ? 'Processing...' : getText('placeOrder')}
               </button>
               <button className="btn-secondary" onClick={onClose}>
                 {getText('cancel')}
               </button>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>

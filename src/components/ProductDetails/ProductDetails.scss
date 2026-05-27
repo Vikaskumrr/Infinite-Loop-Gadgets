@@ -25,6 +25,16 @@
   animation: slideIn 220ms ease-out;
 }
 
+.product-details-route {
+  padding: clamp(1rem, 4vw, 3rem);
+}
+
+.product-details-page {
+  width: min(1180px, 100%);
+  max-height: none;
+  margin: 0 auto;
+}
+
 .close-btn {
   position: absolute;
   top: 0.85rem;
@@ -74,11 +84,34 @@
   color: var(--muted-text);
 }
 
+.product-brand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0;
+  font-weight: 800;
+}
+
+.product-brand span {
+  padding: 0.25rem 0.5rem;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
 .product-price {
   margin: 0.75rem 0;
   color: var(--accent-strong);
   font-size: 1.65rem;
   font-weight: 900;
+}
+
+.product-price.needs-verification {
+  font-size: 1rem;
+  color: var(--muted-text);
 }
 
 .rating {
@@ -93,6 +126,7 @@
 }
 
 .description,
+.features,
 .specifications,
 .reviews {
   margin-top: 1.25rem;
@@ -101,6 +135,7 @@
 }
 
 .description h3,
+.features h3,
 .specifications h3,
 .reviews h3 {
   margin: 0 0 0.65rem;
@@ -108,10 +143,28 @@
 }
 
 .description p,
+.features li,
 .specifications li,
 .reviews li {
   color: var(--muted-text);
   line-height: 1.65;
+}
+
+.features ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.features li {
+  padding: 0.5rem 0.7rem;
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-weight: 800;
 }
 
 .specifications ul,
@@ -140,6 +193,13 @@
   color: #f59e0b;
 }
 
+.product-source-link {
+  display: inline-flex;
+  margin-top: 1rem;
+  color: var(--accent-strong);
+  font-weight: 900;
+}
+
 .action-buttons {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -164,6 +224,10 @@
   background: var(--button-secondary-bg);
 }
 
+.mobile-product-cta {
+  display: none;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -178,5 +242,54 @@
   .product-details-content,
   .action-buttons {
     grid-template-columns: 1fr;
+  }
+
+  .product-details-modal {
+    max-height: 92vh;
+    padding: 1rem;
+  }
+
+  .product-image {
+    max-height: 300px;
+  }
+
+  .action-buttons {
+    display: none;
+  }
+
+  .mobile-product-cta {
+    position: sticky;
+    bottom: -1rem;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 0.65rem;
+    align-items: center;
+    margin: 1.25rem -1rem -1rem;
+    padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--surface-strong) 94%, transparent);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+  }
+
+  .mobile-product-cta button {
+    min-height: 44px;
+    padding-inline: 0.85rem;
+  }
+
+  .mobile-product-cta__price,
+  .mobile-product-cta__stock {
+    display: block;
+  }
+
+  .mobile-product-cta__price {
+    color: var(--accent-strong);
+    font-weight: 900;
+  }
+
+  .mobile-product-cta__stock {
+    color: var(--success);
+    font-size: var(--text-xs);
+    font-weight: 800;
   }
 }

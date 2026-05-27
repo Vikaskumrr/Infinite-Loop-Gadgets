@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './Products.scss';
 import ImageLoader from '../ImageLoader/ImageLoader';
+import OptimizedImage from '../OptimizedImage/OptimizedImage';
 import type { LanguageCode, Product as ProductType, TranslationMap } from '../../types';
+import { formatProductPrice } from '../../utils/products';
 
 interface ProductProps {
   product: ProductType;
@@ -48,7 +50,7 @@ const Product: React.FC<ProductProps> = ({ product, language, onDetailsClick }) 
       <div className="tech-header">
         <h1>{product?.name}</h1>
         <div className="price-location">
-          <span className="price">₹{product?.price.toFixed(2)}</span>
+          <span className="price">{formatProductPrice(product)}</span>
         </div>
       </div>
       <div className="image-wrapper">
@@ -56,13 +58,10 @@ const Product: React.FC<ProductProps> = ({ product, language, onDetailsClick }) 
           <ImageLoader />
         )}
         {product?.productImage && (
-          <img
+          <OptimizedImage
             src={product?.productImage}
             alt={product?.name}
             className={`tech-image ${imageLoaded ? 'is-visible' : 'hidden-until-loaded'}`}
-            loading="lazy"
-            decoding="async"
-            sizes="(max-width: 768px) 90vw, 600px"
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageLoaded(true)}
           />

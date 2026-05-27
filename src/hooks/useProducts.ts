@@ -1,16 +1,21 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Product, SortOption } from '../types';
 import { fetchProducts } from '../services/products';
+import { productMatchesCategory } from '../utils/products';
 
 export const filterAndSortProducts = (
   products: Product[],
   searchTerm: string,
   sortOption: SortOption,
+  category?: string,
 ): Product[] => {
   const normalizedSearch = searchTerm.trim().toLowerCase();
+  const categoryFiltered = category
+    ? products.filter((product) => productMatchesCategory(product, category))
+    : products;
   const filtered = normalizedSearch
-    ? products.filter((product) => product.name.toLowerCase().includes(normalizedSearch))
-    : [...products];
+    ? categoryFiltered.filter((product) => product.name.toLowerCase().includes(normalizedSearch))
+    : [...categoryFiltered];
 
   if (sortOption === 'price-asc') {
     return filtered.sort((a, b) => a.price - b.price);
@@ -27,7 +32,7 @@ export const filterAndSortProducts = (
   return filtered;
 };
 
-export const useProducts = (searchTerm: string, sortOption: SortOption) => {
+export const useProducts = (searchTerm: string, sortOption: SortOption, category?: string) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,8 +68,8 @@ export const useProducts = (searchTerm: string, sortOption: SortOption) => {
   }, []);
 
   const filteredProducts = useMemo(
-    () => filterAndSortProducts(products, searchTerm, sortOption),
-    [products, searchTerm, sortOption],
+    () => filterAndSortProducts(products, searchTerm, sortOption, category),
+    [products, searchTerm, sortOption, category],
   );
 
   return {

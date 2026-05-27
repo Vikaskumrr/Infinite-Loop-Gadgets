@@ -20,19 +20,20 @@ body {
 }
 
 body.theme-gradient {
-  --bg: #f6f7fb;
+  --bg: #f8fafc;
   --bg-elevated: #ffffff;
   --surface: rgba(255, 255, 255, 0.88);
   --surface-strong: #ffffff;
   --text-color: #0f172a;
-  --muted-text: #64748b;
-  --border: rgba(15, 23, 42, 0.12);
-  --accent: #2563eb;
-  --accent-strong: #1e40af;
-  --accent-soft: rgba(37, 99, 235, 0.12);
-  --button-primary-bg: #0f172a;
+  --muted-text: #334155;
+  --border: #cbd5e1;
+  --accent: #0f766e;
+  --accent-strong: #115e59;
+  --accent-soft: rgba(15, 118, 110, 0.12);
+  --button-primary-bg: #0f766e;
   --button-primary-text: #ffffff;
-  --button-secondary-bg: #2563eb;
+  --button-primary-hover: #115e59;
+  --button-secondary-bg: #1d4ed8;
 }
 
 body.theme-neutral {
@@ -82,6 +83,29 @@ select {
 
 button {
   -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+.product-card,
+.cart-modal,
+.checkout-modal {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    opacity 180ms ease;
+}
+
+button:not(:disabled):active {
+  transform: translateY(0);
+}
+
+button:disabled,
+button[aria-busy='true'] {
+  cursor: not-allowed;
+  opacity: 0.72;
 }
 
 button:focus-visible,

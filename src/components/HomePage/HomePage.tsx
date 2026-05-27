@@ -7,7 +7,7 @@ import Footer from '../Footer/Footer';
 import Loader from '../Loader/Loader';
 import ChatboxAssistant from '../ChatboxAssistant/ChatboxAssistant';
 import { useProducts } from '../../hooks/useProducts';
-import type { LanguageCode, Product as ProductType, SortOption } from '../../types';
+import type { LanguageCode, Order, Product as ProductType, SortOption } from '../../types';
 import './HomePage.scss';
 
 interface HomePageProps {
@@ -17,6 +17,7 @@ interface HomePageProps {
   setCartItems: React.Dispatch<React.SetStateAction<ProductType[]>>;
   searchTerm: string;
   sortOption: SortOption;
+  onOrderPlaced?: (order: Order) => void;
 }
 
 const HomePage: React.FC<HomePageProps> = ({
@@ -26,6 +27,7 @@ const HomePage: React.FC<HomePageProps> = ({
   setCartItems,
   searchTerm,
   sortOption,
+  onOrderPlaced,
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -123,6 +125,7 @@ const HomePage: React.FC<HomePageProps> = ({
           products={checkoutItems}
           onClose={handleCloseCheckout}
           language={language}
+          onOrderPlaced={onOrderPlaced}
         />
       )}
       <Footer/>
