@@ -7,6 +7,8 @@ import Loader from './components/Loader/Loader';
 import SubCategoryPage from './components/SubCategoryPage/SubCategoryPage';
 import MouseTrailer from './components/MouseTrailer/MouseTrailer';
 import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
+import ProductRoutePage from './components/ProductRoutePage/ProductRoutePage';
+import NotFoundPage from './components/NotFoundPage/NotFoundPage';
 import { useLocalStorageState } from './hooks/useLocalStorageState';
 import type { LanguageCode, Order, Product, SortOption, UserProfile } from './types';
 import './styles/app.scss';
@@ -46,6 +48,10 @@ function App(): JSX.Element {
       setCartItems(newCartItems);
     };
 
+    const handleAddToCart = (product: Product) => {
+        setCartItems((items) => [...items, product]);
+    };
+
 
     return (
       <ErrorBoundary>
@@ -74,7 +80,11 @@ function App(): JSX.Element {
                       />} />
                       <Route path="/account" element={<AccountDetailsPage profile={profile} orders={orders} onProfileChange={setProfile} />} />
                       <Route path="/about" element={<AboutUs />} />
-                      <Route path="/products" element={<SubCategoryPage language={language} onAddToCart={(product) => setCartItems((items) => [...items, product])} />} />
+                      <Route path="/products" element={<SubCategoryPage language={language} onAddToCart={handleAddToCart} />} />
+                      <Route path="/categories/:categorySlug" element={<SubCategoryPage language={language} onAddToCart={handleAddToCart} />} />
+                      <Route path="/categories/:categorySlug/:subCategorySlug" element={<SubCategoryPage language={language} onAddToCart={handleAddToCart} />} />
+                      <Route path="/products/:productSlug" element={<ProductRoutePage language={language} onAddToCart={handleAddToCart} onBuyNow={(product) => setCartItems([product])} />} />
+                      <Route path="*" element={<NotFoundPage />} />
                   </Routes>
                 </Suspense>
                 {isCartOpen && (

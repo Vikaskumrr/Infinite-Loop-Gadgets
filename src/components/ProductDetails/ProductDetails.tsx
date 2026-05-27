@@ -11,9 +11,10 @@ interface ProductDetailsProps {
   onAddToCart: (product: Product) => void;
   onBuyNow: (product: Product) => void;
   language: LanguageCode;
+  presentation?: 'modal' | 'page';
 }
 
-const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAddToCart, onBuyNow, language }) => {
+const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAddToCart, onBuyNow, language, presentation = 'modal' }) => {
   useEscapeKey(onClose);
 
   const translations: TranslationMap<'description' | 'rating' | 'features' | 'addToCart' | 'buyNow' | 'reviews' | 'specifications' | 'close'> = {
@@ -59,18 +60,19 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
     return filledStars + emptyStars;
   };
 
-  return (
-    <div className="product-details-overlay" onClick={onClose}>
+  const content = (
       <div
-        className="product-details-modal"
+        className={`product-details-modal ${presentation === 'page' ? 'product-details-page' : ''}`}
         role="dialog"
-        aria-modal="true"
+        aria-modal={presentation === 'modal' ? 'true' : undefined}
         aria-labelledby="product-details-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="close-btn" onClick={onClose} aria-label={getText('close')}>
-          &times;
-        </button>
+        {presentation === 'modal' && (
+          <button className="close-btn" onClick={onClose} aria-label={getText('close')}>
+            &times;
+          </button>
+        )}
         <div className="product-details-content">
           <OptimizedImage src={product.productImage} alt={product.name} className="product-image" sizes="(max-width: 760px) 92vw, 420px" />
           <div className="product-info">
@@ -140,9 +142,30 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
                 {getText('buyNow')}
               </button>
             </div>
+            <div className="mobile-product-cta" aria-label="Product actions">
+              <div>
+                <span className="mobile-product-cta__price">{formatProductPrice(product)}</span>
+                <span className="mobile-product-cta__stock">In stock</span>
+              </div>
+              <button className="add-to-cart-btn" onClick={() => onAddToCart(product)}>
+                Add
+              </button>
+              <button className="buy-now-btn" onClick={() => onBuyNow(product)}>
+                {getText('buyNow')}
+              </button>
+            </div>
           </div>
         </div>
       </div>
+  );
+
+  if (presentation === 'page') {
+    return <div className="product-details-route">{content}</div>;
+  }
+
+  return (
+    <div className="product-details-overlay" onClick={onClose}>
+      {content}
     </div>
   );
 };

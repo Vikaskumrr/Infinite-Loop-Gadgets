@@ -62,7 +62,7 @@ const Categories: React.FC = () => {
             <ul className="subcategory-dropdown">
               {category.subcategories.map((sub) => (
                 <li key={sub}>
-                  <Link to={`/products?category=${slugify(sub)}`} className='subcategory-item'>
+                  <Link to={`/categories/${slugify(category.name)}/${slugify(sub)}`} className='subcategory-item'>
                     <span>{sub}</span>
                   </Link>
                 </li>

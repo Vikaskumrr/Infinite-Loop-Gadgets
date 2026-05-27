@@ -22,7 +22,8 @@
   color: var(--muted-text);
 }
 
-.category-grid {
+.category-grid,
+.product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
   gap: clamp(0.9rem, 2vw, 1.25rem);

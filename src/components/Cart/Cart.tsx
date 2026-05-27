@@ -20,7 +20,7 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, langu
   const translations: TranslationMap<'cartTitle' | 'emptyCart' | 'total' | 'checkout' | 'close' | 'remove'> = {
     en: {
       cartTitle: 'Shopping Cart',
-      emptyCart: 'Your cart is empty.',
+      emptyCart: 'Your cart is ready when you are. Browse the storefront to add your next upgrade.',
       total: 'Total',
       checkout: 'Checkout',
       close: 'Close',
@@ -89,7 +89,7 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, langu
                   <span className="total-label">{getText('total')}:</span>
                   <span className="total-price">₹{calculateTotal().toFixed(2)}</span>
                 </div>
-                <button className="checkout-btn" onClick={handleCheckout}>{getText('checkout')}</button>
+                <button className="checkout-btn" onClick={handleCheckout}>Proceed to Checkout</button>
               </>
             )}
           </div>

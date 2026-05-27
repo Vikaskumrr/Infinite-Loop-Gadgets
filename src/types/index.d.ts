@@ -27,6 +27,9 @@ export interface Product {
   priceStatus?: 'verified' | 'fallback' | 'todo';
   sourceUrl?: string;
   imageSourceUrl?: string;
+  badge?: 'Sale' | 'New' | 'Best Seller';
+  stockStatus?: 'in-stock' | 'out-of-stock';
+  compareAtPrice?: string;
 }
 
 export interface UserProfile {

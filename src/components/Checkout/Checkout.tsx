@@ -14,6 +14,7 @@ interface CheckoutProps {
 
 const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrderPlaced }) => {
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   useEscapeKey(onClose);
 
   const translations: TranslationMap<'checkoutTitle' | 'thankYou' | 'orderSummary' | 'total' | 'close' | 'placeOrder' | 'cancel'> = {
@@ -55,6 +56,7 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrde
   };
 
   const handlePlaceOrder = () => {
+    setIsProcessing(true);
     onOrderPlaced?.({
       id: `ILG-${Date.now().toString(36).toUpperCase()}`,
       items: products,
@@ -62,7 +64,10 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrde
       createdAt: new Date().toISOString(),
       status: 'placed',
     });
-    setIsOrderPlaced(true);
+    window.setTimeout(() => {
+      setIsProcessing(false);
+      setIsOrderPlaced(true);
+    }, 450);
   };
 
   return (
@@ -75,7 +80,25 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrde
         {isOrderPlaced ? (
           <p className="thank-you-message">{getText('thankYou')}</p>
         ) : (
-          <>
+          <div className="checkout-layout">
+            <section className="checkout-form" aria-label="Checkout information">
+              <div className="checkout-field">
+                <label htmlFor="checkout-email">Email</label>
+                <input id="checkout-email" type="email" placeholder="you@example.com" autoComplete="email" />
+              </div>
+              <div className="checkout-field">
+                <label htmlFor="checkout-name">Full name</label>
+                <input id="checkout-name" type="text" placeholder="Guest Shopper" autoComplete="name" />
+              </div>
+              <div className="coupon-row">
+                <label htmlFor="coupon-code">Coupon</label>
+                <div>
+                  <input id="coupon-code" type="text" placeholder="SAVE10" />
+                  <button type="button">Apply Coupon</button>
+                </div>
+              </div>
+              <p className="checkout-trust">Secure demo checkout. Your cart is safe and no real payment is processed.</p>
+            </section>
             <div className="order-summary">
               <h4>{getText('orderSummary')}</h4>
               <ul className="order-items-list">
@@ -95,14 +118,14 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrde
               </div>
             </div>
             <div className="checkout-buttons">
-              <button className="btn-primary" onClick={handlePlaceOrder}>
-                {getText('placeOrder')}
+              <button className="btn-primary" onClick={handlePlaceOrder} disabled={isProcessing} aria-busy={isProcessing}>
+                {isProcessing ? 'Processing...' : getText('placeOrder')}
               </button>
               <button className="btn-secondary" onClick={onClose}>
                 {getText('cancel')}
               </button>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>

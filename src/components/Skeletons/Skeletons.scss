@@ -1,0 +1,79 @@
+.skeleton-grid {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: clamp(1rem, 4vw, 3rem);
+}
+
+.skeleton-card {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 37%, #e2e8f0 63%);
+  background-size: 400% 100%;
+  border-radius: var(--radius-sm);
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.skeleton-image {
+  aspect-ratio: 4 / 3;
+}
+
+.skeleton-line {
+  height: 14px;
+}
+
+.skeleton-short {
+  width: 42%;
+}
+
+.skeleton-medium {
+  width: 72%;
+}
+
+.skeleton-title {
+  width: 82%;
+  height: 44px;
+}
+
+.skeleton-button {
+  height: 44px;
+}
+
+.detail-skeleton {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.85fr) minmax(280px, 1.15fr);
+  gap: clamp(1.25rem, 4vw, 2.5rem);
+  width: min(980px, 100%);
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+.detail-skeleton__image {
+  min-height: 420px;
+}
+
+.detail-skeleton__copy {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+}
+
+@keyframes shimmer {
+  to { background-position: -100% 0; }
+}
+
+@media (max-width: 760px) {
+  .detail-skeleton {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-skeleton__image {
+    min-height: 280px;
+  }
+}

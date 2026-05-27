@@ -1,11 +1,10 @@
 import React, { useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { categories, slugify } from '../../data/categories';
 import { useProducts } from '../../hooks/useProducts';
-import OptimizedImage from '../OptimizedImage/OptimizedImage';
-import Loader from '../Loader/Loader';
+import ProductCard from '../ProductCard/ProductCard';
+import { ProductGridSkeleton } from '../Skeletons/Skeletons';
 import type { LanguageCode, Product } from '../../types';
-import { formatProductPrice } from '../../utils/products';
 import './SubCategoryPage.scss';
 
 interface SubCategoryPageProps {
@@ -15,7 +14,8 @@ interface SubCategoryPageProps {
 
 const SubCategoryPage: React.FC<SubCategoryPageProps> = ({ onAddToCart }) => {
   const [searchParams] = useSearchParams();
-  const category = searchParams.get('category') || 'electronics';
+  const { categorySlug, subCategorySlug } = useParams();
+  const category = subCategorySlug || categorySlug || searchParams.get('category') || 'electronics';
   const displayName = useMemo(() => {
     const allCategories = categories.flatMap((item) => [item.name, ...item.subcategories]);
     return allCategories.find((item) => slugify(item) === category) || category.replace(/-/g, ' ');
@@ -23,7 +23,7 @@ const SubCategoryPage: React.FC<SubCategoryPageProps> = ({ onAddToCart }) => {
   const { filteredProducts, loading, error } = useProducts('', 'rating', displayName);
 
   if (loading) {
-    return <Loader />;
+    return <ProductGridSkeleton />;
   }
 
   if (error) {
@@ -53,27 +53,11 @@ const SubCategoryPage: React.FC<SubCategoryPageProps> = ({ onAddToCart }) => {
       ) : (
         <div className="category-grid">
           {filteredProducts.map((product) => (
-            <article key={`${product.brand}-${product.name}`} className="category-product-card">
-              <OptimizedImage src={product.productImage} alt={product.name} className="category-product-image" sizes="(max-width: 760px) 92vw, 280px" />
-              <div className="category-product-copy">
-                <span>{product.brand}</span>
-                <h2>{product.name}</h2>
-                <p>{product.description || `${product.color} finish with ${product.rating} star rating.`}</p>
-                {product.features && product.features.length > 0 && (
-                  <ul className="category-feature-list" aria-label={`${product.name} key features`}>
-                    {product.features.slice(0, 3).map((feature) => (
-                      <li key={feature}>{feature}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <div className="category-product-actions">
-                <strong className={product.priceStatus === 'todo' ? 'needs-verification' : ''}>
-                  {formatProductPrice(product)}
-                </strong>
-                <button type="button" onClick={() => onAddToCart(product)}>Add to Cart</button>
-              </div>
-            </article>
+            <ProductCard
+              key={`${product.brand}-${product.name}`}
+              product={product}
+              onAddToCart={onAddToCart}
+            />
           ))}
         </div>
       )}

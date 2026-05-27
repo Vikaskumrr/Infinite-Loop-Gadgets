@@ -16,7 +16,7 @@ describe('Checkout', () => {
     render(<Checkout products={products} onClose={vi.fn()} language="en" onOrderPlaced={handleOrderPlaced} />);
     await user.click(screen.getByRole('button', { name: /place order/i }));
 
-    expect(screen.getByText(/thank you for your purchase/i)).toBeInTheDocument();
+    expect(await screen.findByText(/thank you for your purchase/i)).toBeInTheDocument();
     expect(handleOrderPlaced).toHaveBeenCalledWith(expect.objectContaining({
       items: products,
       status: 'placed',
