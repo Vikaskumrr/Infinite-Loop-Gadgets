@@ -27,6 +27,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [isAdding, setIsAdding] = React.useState(false);
   const [wasAdded, setWasAdded] = React.useState(false);
   const isOutOfStock = product.stockStatus === 'out-of-stock';
+  const availability = product.availabilityStatus || (isOutOfStock ? 'out-of-stock' : 'available');
+  const availabilityLabel = availability === 'out-of-stock' ? 'Out of stock' : availability === 'limited' ? 'Limited stock' : 'Available';
   const productSlug = getProductSlug(product);
 
   const handleAddToCart = async () => {
@@ -46,6 +48,9 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <Link to={`/products/${productSlug}`} className="product-card__media" aria-label={`View ${product.name}`}>
         <OptimizedImage src={product.productImage} alt={product.name} className="product-card__image" sizes="(max-width: 760px) 92vw, 280px" />
         {product.badge && <span className="product-card__badge">{product.badge}</span>}
+        <span className={`product-card__availability product-card__availability--${availability}`}>
+          {availabilityLabel}
+        </span>
         {product.priceStatus && (
           <span className={`product-card__price-badge price-status-${product.priceStatus}`}>
             {product.priceStatus === 'verified' ? 'Verified price' : product.priceStatus === 'fallback' ? 'Estimate' : 'Needs review'}

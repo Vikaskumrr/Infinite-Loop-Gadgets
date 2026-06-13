@@ -2,8 +2,10 @@ import React from 'react';
 import './ProductDetails.scss';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 import OptimizedImage from '../OptimizedImage/OptimizedImage';
+import ProductSpecifications from '../ProductSpecifications/ProductSpecifications';
 import type { LanguageCode, Product, TranslationMap } from '../../types';
 import { formatProductPrice } from '../../utils/products';
+import { trackRelatedProductClicked } from '../../analytics';
 
 interface ProductDetailsProps {
   product: Product;
@@ -23,10 +25,24 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, relatedProduct
   const [selectedColor, setSelectedColor] = React.useState(product.color);
   const [selectedStorage, setSelectedStorage] = React.useState(product.specifications?.Storage || 'Standard');
   const [pincode, setPincode] = React.useState('');
+  const galleryImages = React.useMemo(
+    () => Array.from(new Set([...(product.images || []), product.productImage].filter(Boolean))),
+    [product.images, product.productImage],
+  );
+  React.useEffect(() => {
+    setActiveImage(galleryImages[0] || product.productImage);
+  }, [galleryImages, product.productImage]);
   const reviewAverage = product.reviews?.length
     ? product.reviews.reduce((total, review) => total + review.stars, 0) / product.reviews.length
     : product.rating;
-  const galleryImages = [product.productImage, product.productImage, product.productImage];
+  const reviewCount = product.reviewCount ?? product.reviews?.length ?? 0;
+  const availability = product.availabilityStatus || (product.stockStatus === 'out-of-stock' ? 'out-of-stock' : 'available');
+  const isOutOfStock = availability === 'out-of-stock';
+  const inventoryLabel = availability === 'out-of-stock'
+    ? 'Out of stock'
+    : availability === 'limited'
+      ? `Limited stock${product.stockQuantity ? `: ${product.stockQuantity} left` : ''}`
+      : 'Available';
 
   const translations: TranslationMap<'description' | 'rating' | 'features' | 'addToCart' | 'buyNow' | 'reviews' | 'specifications' | 'close'> = {
     en: {
@@ -104,16 +120,22 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, relatedProduct
             </p>
             <p className="product-brand">
               {product.brand}
+              {product.category ? <span>{product.category}</span> : null}
               {product.subcategory ? <span>{product.subcategory}</span> : null}
             </p>
             <p className={`product-price ${product.priceStatus === 'todo' ? 'needs-verification' : ''}`}>
               {formatProductPrice(product)}
+              {product.compareAtPrice ? <s>{product.compareAtPrice}</s> : null}
               <span className={`price-status-pill price-status-${product.priceStatus || 'fallback'}`}>
-                {product.priceStatus === 'verified' ? 'Verified' : product.priceStatus === 'todo' ? 'Needs review' : 'Estimate'}
+                {product.priceStatus === 'verified' ? 'Verified' : product.priceStatus === 'todo' ? 'Needs Verification' : 'Recently Updated'}
               </span>
             </p>
             <div className="rating">
-              {getText('rating')}: {product.rating} ★
+              {getText('rating')}: {product.rating} ★ {reviewCount > 0 ? <span>({reviewCount} reviews)</span> : null}
+            </div>
+            <div className={`inventory-status inventory-status--${availability}`}>
+              <strong>{inventoryLabel}</strong>
+              <span>{isOutOfStock ? 'Purchasing is disabled until this item returns.' : 'Ready for demo cart checkout.'}</span>
             </div>
             <div className="variant-panel" aria-label="Product variants">
               <label>
@@ -157,13 +179,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, relatedProduct
             {product.specifications && Object.keys(product.specifications).length > 0 && (
               <div className="specifications">
                 <h3>{getText('specifications')}</h3>
-                <ul>
-                  {Object.entries(product.specifications).map(([key, value], index) => (
-                    <li key={index}>
-                      <strong>{key}:</strong> {value}
-                    </li>
-                  ))}
-                </ul>
+                <ProductSpecifications specifications={product.specifications} />
               </div>
             )}
             {product.reviews && product.reviews.length > 0 && (
@@ -191,7 +207,10 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, relatedProduct
                   {relatedProducts.slice(0, 3).map((relatedProduct) => (
                     <li key={`${relatedProduct.brand}-${relatedProduct.name}`}>
                       <span>{relatedProduct.name}</span>
-                      <button type="button" onClick={() => onAddToCart(relatedProduct)}>Add</button>
+                      <button type="button" onClick={() => {
+                        trackRelatedProductClicked(relatedProduct.id);
+                        onAddToCart(relatedProduct);
+                      }}>Add</button>
                     </li>
                   ))}
                 </ul>
@@ -203,22 +222,22 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, relatedProduct
               </a>
             )}
             <div className="action-buttons">
-              <button className="add-to-cart-btn" onClick={() => onAddToCart(product)}>
+              <button className="add-to-cart-btn" disabled={isOutOfStock} onClick={() => onAddToCart(product)}>
                 {getText('addToCart')}
               </button>
-              <button className="buy-now-btn" onClick={() => onBuyNow(product)}>
+              <button className="buy-now-btn" disabled={isOutOfStock} onClick={() => onBuyNow(product)}>
                 {getText('buyNow')}
               </button>
             </div>
             <div className="mobile-product-cta" aria-label="Product actions">
               <div>
                 <span className="mobile-product-cta__price">{formatProductPrice(product)}</span>
-                <span className="mobile-product-cta__stock">In stock</span>
+                <span className="mobile-product-cta__stock">{inventoryLabel}</span>
               </div>
-              <button className="add-to-cart-btn" onClick={() => onAddToCart(product)}>
+              <button className="add-to-cart-btn" disabled={isOutOfStock} onClick={() => onAddToCart(product)}>
                 Add
               </button>
-              <button className="buy-now-btn" onClick={() => onBuyNow(product)}>
+              <button className="buy-now-btn" disabled={isOutOfStock} onClick={() => onBuyNow(product)}>
                 {getText('buyNow')}
               </button>
             </div>

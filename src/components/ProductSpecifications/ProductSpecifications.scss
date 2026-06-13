@@ -1,0 +1,32 @@
+.product-specifications {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.product-specifications section {
+  padding: 0.85rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.product-specifications h4 {
+  margin: 0 0 0.65rem;
+  color: var(--accent-strong);
+}
+
+.product-specifications dl {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.45fr) minmax(0, 1fr);
+  gap: 0.45rem 0.8rem;
+  margin: 0;
+}
+
+.product-specifications dt {
+  color: var(--muted-text);
+  font-weight: 900;
+}
+
+.product-specifications dd {
+  margin: 0;
+}

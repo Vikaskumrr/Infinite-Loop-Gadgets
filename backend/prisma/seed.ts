@@ -42,6 +42,36 @@ interface MigrationReport {
   warnings: string[];
 }
 
+const findDuplicates = (values: Array<{ key: string; name?: string }>): string[] => {
+  const seen = new Map<string, string | undefined>();
+  const duplicates: string[] = [];
+
+  for (const value of values) {
+    const existingName = seen.get(value.key);
+    if (seen.has(value.key)) {
+      duplicates.push(`${value.key} (${existingName || 'unknown'} / ${value.name || 'unknown'})`);
+    } else {
+      seen.set(value.key, value.name);
+    }
+  }
+
+  return duplicates;
+};
+
+const assertUniqueCatalogIdentity = (): void => {
+  const identityRows = catalogSeedProducts.map((product) => ({
+    id: product.id || slugify(`${product.brand}-${product.name}`),
+    slug: product.slug || slugify(product.name),
+    name: product.name,
+  }));
+  const duplicateIds = findDuplicates(identityRows.map((product) => ({ key: product.id, name: product.name })));
+  const duplicateSlugs = findDuplicates(identityRows.map((product) => ({ key: product.slug, name: product.name })));
+
+  if (duplicateIds.length > 0 || duplicateSlugs.length > 0) {
+    throw new Error(`Catalog identity conflict. duplicateIds=${duplicateIds.join(', ') || 'none'} duplicateSlugs=${duplicateSlugs.join(', ') || 'none'}`);
+  }
+};
+
 const toPriceStatus = (status: CatalogSeedProduct['priceStatus']): PriceStatus | undefined => {
   if (status === 'verified') return PriceStatus.VERIFIED;
   if (status === 'fallback') return PriceStatus.FALLBACK;
@@ -83,6 +113,7 @@ const validateSeedProduct = (product: CatalogSeedProduct): string | null => {
 const seedProducts = async (): Promise<MigrationReport> => {
   const report: MigrationReport = { imported: 0, skipped: [], warnings: [] };
   const seenSlugs = new Map<string, number>();
+  assertUniqueCatalogIdentity();
 
   for (const product of catalogSeedProducts) {
     const invalidReason = validateSeedProduct(product);
