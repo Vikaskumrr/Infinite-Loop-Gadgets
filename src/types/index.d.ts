@@ -11,6 +11,8 @@ export interface Review {
 }
 
 export interface Product {
+  id?: string;
+  slug?: string;
   name: string;
   brand: string;
   price: number;
@@ -30,6 +32,7 @@ export interface Product {
   badge?: 'Sale' | 'New' | 'Best Seller';
   stockStatus?: 'in-stock' | 'out-of-stock';
   compareAtPrice?: string;
+  catalogSource?: 'remote' | 'fallback';
 }
 
 export interface UserProfile {
@@ -55,6 +58,14 @@ export interface ProductApiRecord {
 
 export interface JsonBinResponse {
   record?: ProductApiRecord;
+}
+
+export type ProductCatalogSource = 'remote' | 'fallback';
+
+export interface ProductCatalogResult {
+  products: Product[];
+  source: ProductCatalogSource;
+  warning?: string;
 }
 
 export type TranslationMap<T extends string> = Record<'en', Record<T, string>> &

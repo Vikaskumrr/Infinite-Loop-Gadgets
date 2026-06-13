@@ -44,7 +44,7 @@ describe('responsive smoke coverage', () => {
       </MemoryRouter>,
     );
 
-    expect(await screen.findByRole('heading', { name: /loop phone pro/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /loop phone pro/i, level: 1 })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /search products/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /open cart/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /full details/i })).toBeInTheDocument();
