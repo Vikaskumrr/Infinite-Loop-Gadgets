@@ -8,6 +8,8 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   DATABASE_URL: z.string().min(1).optional(),
   FRONTEND_URL: z.string().url().default('http://localhost:5173'),
+  JWT_SECRET: z.string().min(32).default('development-only-jwt-secret-change-before-production'),
+  JWT_EXPIRES_IN: z.string().min(1).default('1h'),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

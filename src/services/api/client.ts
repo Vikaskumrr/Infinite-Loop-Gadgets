@@ -4,7 +4,7 @@ const API_REQUEST_TIMEOUT_MS = 8000;
 export const getApiBaseUrl = (): string =>
   (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || DEFAULT_API_URL;
 
-export const apiGet = async <TData>(path: string): Promise<TData> => {
+export const apiGet = async <TData>(path: string, headers: Record<string, string> = {}): Promise<TData> => {
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), API_REQUEST_TIMEOUT_MS);
 
@@ -12,6 +12,7 @@ export const apiGet = async <TData>(path: string): Promise<TData> => {
     const response = await fetch(`${getApiBaseUrl()}${path}`, {
       headers: {
         Accept: 'application/json',
+        ...headers,
       },
       signal: controller.signal,
     });

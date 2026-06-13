@@ -2,7 +2,7 @@
 
 Production-style Express API foundation for the Infinite Gadget Loop ecommerce project.
 
-This milestone includes the backend shell, health endpoint, and Prisma/PostgreSQL database foundation. Product APIs, authentication, and business workflows will be added in later milestones.
+This milestone includes the backend shell, health endpoint, Prisma/PostgreSQL database foundation, product catalog API, and JWT-based user identity foundation. Cart persistence, orders, payments, and admin workflows will be added in later milestones.
 
 ## Requirements
 
@@ -31,6 +31,8 @@ Variables:
 - `NODE_ENV`: `development`, `test`, or `production`.
 - `DATABASE_URL`: PostgreSQL connection string reserved for the Prisma milestone.
 - `FRONTEND_URL`: allowed browser origin for CORS, usually `http://localhost:5173`.
+- `JWT_SECRET`: signing secret for access tokens. Use at least 32 characters and never commit production secrets.
+- `JWT_EXPIRES_IN`: access token lifetime, for example `1h` or `15m`.
 
 ## Commands
 
@@ -152,6 +154,37 @@ Categories:
 curl http://localhost:5000/api/v1/categories
 ```
 
+Authentication:
+
+```bash
+curl -X POST http://localhost:5000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Ada Lovelace","email":"ada@example.com","password":"secure-password"}'
+```
+
+```bash
+curl -X POST http://localhost:5000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"ada@example.com","password":"secure-password"}'
+```
+
+```bash
+curl http://localhost:5000/api/v1/auth/me \
+  -H "Authorization: Bearer <access-token>"
+```
+
+```bash
+curl -X POST http://localhost:5000/api/v1/auth/logout \
+  -H "Authorization: Bearer <access-token>"
+```
+
+Authentication notes:
+
+- Passwords are hashed before storage and never returned by API responses.
+- JWTs contain only the user id and expire according to `JWT_EXPIRES_IN`.
+- Logout is currently stateless because refresh tokens and server-side sessions are out of scope for this milestone.
+- The frontend stores the access token in localStorage for the portfolio foundation. A production deployment should move session storage to secure, httpOnly cookies before handling sensitive account data.
+
 ## Architecture
 
 - `src/app.ts`: Express initialization, middleware, routes, error handling.
@@ -165,6 +198,7 @@ curl http://localhost:5000/api/v1/categories
 - `src/repositories`: Prisma database access.
 - `src/utils`: shared API response helpers and async route wrapper.
 - `src/types`: shared API response types.
+- `src/auth`: authentication controller, service, repository, validators, token helpers, and auth middleware.
 - `prisma/schema.prisma`: database schema.
 - `prisma/seed.ts`: seed script for reference data.
 - `docs/catalog-migration.md`: frontend-to-database product migration mapping.
