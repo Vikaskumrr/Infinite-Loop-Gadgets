@@ -14,6 +14,10 @@ const products = [
     category: 'Electronics',
     subcategory: 'Smartphones',
     specifications: { Display: 'OLED' },
+    reviewCount: 12,
+    images: ['https://example.com/pixel.png'],
+    availabilityStatus: 'limited',
+    stockQuantity: 3,
   },
 ];
 
@@ -29,12 +33,14 @@ const productServiceMock = {
   getProductByIdOrSlug: jest.fn((idOrSlug: string) => Promise.resolve(
     idOrSlug === 'missing-product' ? null : products[0],
   )),
+  getRelatedProducts: jest.fn(() => Promise.resolve(products)),
   getCategories: jest.fn(() => Promise.resolve([
     {
       id: 'electronics',
       name: 'Electronics',
       slug: 'electronics',
       productCount: 1,
+      directProductCount: 0,
     },
   ])),
 };
@@ -77,6 +83,17 @@ describe('product API routes', () => {
     expect(response.body.data).toEqual(products[0]);
   });
 
+  it('returns related products', async () => {
+    const response = await request(app).get('/api/v1/products/google-pixel-8-pro/related').expect(200);
+
+    expect(response.body).toEqual({
+      success: true,
+      data: { products },
+      message: 'Related products fetched successfully',
+    });
+    expect(productServiceMock.getRelatedProducts).toHaveBeenCalledWith('google-pixel-8-pro');
+  });
+
   it('returns a product by slug', async () => {
     const response = await request(app).get('/api/v1/products/pixel-8-pro').expect(200);
 
@@ -105,6 +122,7 @@ describe('product API routes', () => {
             name: 'Electronics',
             slug: 'electronics',
             productCount: 1,
+            directProductCount: 0,
           },
         ],
       },

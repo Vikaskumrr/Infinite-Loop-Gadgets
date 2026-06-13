@@ -32,6 +32,13 @@ export const trackEvent = (eventName: string, params: Record<string, unknown> = 
   analyticsWindow.dataLayer.push(['event', eventName, params]);
 };
 
-export const trackProductView = (name: string): void => trackEvent('product_view', { item_name: name });
+export const analytics = {
+  track: trackEvent,
+};
+
+export const trackProductView = (name: string, productId?: string): void => trackEvent('product_view', { item_name: name, product_id: productId });
 export const trackAddToCart = (name: string, price: number): void => trackEvent('add_to_cart', { item_name: name, value: price });
 export const trackCheckoutStarted = (value: number): void => trackEvent('checkout_started', { value });
+export const trackSearchPerformed = (query: string): void => trackEvent('search_performed', { query });
+export const trackCategoryOpened = (category: string): void => trackEvent('category_opened', { category });
+export const trackRelatedProductClicked = (productId?: string): void => trackEvent('related_product_clicked', { product_id: productId });

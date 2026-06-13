@@ -4,7 +4,9 @@ import ProductDetails from '../ProductDetails/ProductDetails';
 import RetryState from '../RetryState/RetryState';
 import { ProductDetailSkeleton } from '../Skeletons/Skeletons';
 import { useProducts } from '../../hooks/useProducts';
+import { fetchRelatedProductsFromApi } from '../../services/products';
 import { getProductSlug } from '../../utils/productIdentity';
+import { trackProductView } from '../../analytics';
 import type { LanguageCode, Product } from '../../types';
 
 interface ProductRoutePageProps {
@@ -18,12 +20,31 @@ const ProductRoutePage: React.FC<ProductRoutePageProps> = ({ language, onAddToCa
   const { productSlug } = useParams();
   const { products, loading, error, retry } = useProducts('', 'none');
   const product = products.find((item) => getProductSlug(item) === productSlug);
+  const [apiRelatedProducts, setApiRelatedProducts] = React.useState<Product[]>([]);
 
   React.useEffect(() => {
     if (product) {
       onViewed?.(product);
+      trackProductView(product.name, product.id);
     }
   }, [onViewed, product]);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    if (!product?.id && !product?.slug) return;
+
+    void fetchRelatedProductsFromApi(product.id || product.slug || '')
+      .then((relatedProducts) => {
+        if (isMounted) setApiRelatedProducts(relatedProducts);
+      })
+      .catch(() => {
+        if (isMounted) setApiRelatedProducts([]);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [product?.id, product?.slug]);
 
   if (loading) {
     return <ProductDetailSkeleton />;
@@ -54,7 +75,7 @@ const ProductRoutePage: React.FC<ProductRoutePageProps> = ({ language, onAddToCa
   return (
     <ProductDetails
       product={product}
-      relatedProducts={products.filter((item) => item.name !== product.name && (item.category === product.category || item.subcategory === product.subcategory)).slice(0, 4)}
+      relatedProducts={(apiRelatedProducts.length > 0 ? apiRelatedProducts : products.filter((item) => item.name !== product.name && (item.category === product.category || item.subcategory === product.subcategory))).slice(0, 4)}
       onClose={() => window.history.back()}
       onAddToCart={onAddToCart}
       onBuyNow={onBuyNow}

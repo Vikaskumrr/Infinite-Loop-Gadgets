@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { categories, slugify } from '../../data/categories';
 import { useProducts } from '../../hooks/useProducts';
 import { getProductId } from '../../utils/productIdentity';
+import { trackCategoryOpened, trackSearchPerformed } from '../../analytics';
 import ProductCard from '../ProductCard/ProductCard';
 import RetryState from '../RetryState/RetryState';
 import { ProductGridSkeleton } from '../Skeletons/Skeletons';
@@ -37,6 +38,16 @@ const SubCategoryPage: React.FC<SubCategoryPageProps> = ({
   const [verifiedOnly, setVerifiedOnly] = React.useState(false);
   const [categorySearch, setCategorySearch] = React.useState('');
   const { filteredProducts, loading, error, retry } = useProducts(categorySearch, 'rating', displayName);
+
+  React.useEffect(() => {
+    trackCategoryOpened(displayName);
+  }, [displayName]);
+
+  React.useEffect(() => {
+    if (categorySearch.trim()) {
+      trackSearchPerformed(categorySearch.trim());
+    }
+  }, [categorySearch]);
 
   const brands = useMemo(() => Array.from(new Set(filteredProducts.map((product) => product.brand))).sort(), [filteredProducts]);
   const discoveryProducts = useMemo(() => filteredProducts.filter((product) => {

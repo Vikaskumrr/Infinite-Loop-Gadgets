@@ -3,6 +3,7 @@ import { enrichProducts, enrichedProducts } from '../data/enrichedProducts';
 import { extractProductPayload, validateProducts, withProductIdentity } from '../domain/productSchema';
 import { logger } from '../utils/logger';
 import { fetchProductsFromApi } from './api/productService';
+export { fetchRelatedProductsFromApi } from './api/productService';
 
 const DEFAULT_BIN_ID = '68bf1a1ed0ea881f4076533c';
 const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';

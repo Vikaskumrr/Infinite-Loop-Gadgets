@@ -96,7 +96,7 @@
 
 .gallery-thumbs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
   gap: 0.5rem;
 }
 
@@ -161,6 +161,11 @@
   font-weight: 900;
 }
 
+.product-price s {
+  color: var(--subtle-text);
+  font-size: 1rem;
+}
+
 .price-status-pill {
   padding: 0.3rem 0.5rem;
   background: var(--surface-strong);
@@ -184,6 +189,48 @@
   border: 1px solid rgba(250, 204, 21, 0.36);
   border-radius: 999px;
   font-weight: 800;
+}
+
+.rating span {
+  margin-left: 0.35rem;
+  color: #78350f;
+}
+
+.inventory-status {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0.75rem 0 1rem;
+  padding: 0.8rem 0.95rem;
+  background: color-mix(in srgb, var(--success) 9%, var(--surface-strong));
+  border: 1px solid color-mix(in srgb, var(--success) 28%, var(--border));
+  border-radius: var(--radius-md);
+}
+
+.inventory-status strong {
+  color: var(--success);
+}
+
+.inventory-status span {
+  color: var(--muted-text);
+  font-size: var(--text-sm);
+}
+
+.inventory-status--limited {
+  background: color-mix(in srgb, var(--warning) 10%, var(--surface-strong));
+  border-color: color-mix(in srgb, var(--warning) 32%, var(--border));
+}
+
+.inventory-status--limited strong {
+  color: var(--warning);
+}
+
+.inventory-status--out-of-stock {
+  background: color-mix(in srgb, var(--danger) 9%, var(--surface-strong));
+  border-color: color-mix(in srgb, var(--danger) 32%, var(--border));
+}
+
+.inventory-status--out-of-stock strong {
+  color: var(--danger);
 }
 
 .variant-panel,
@@ -253,10 +300,15 @@
 
 .description p,
 .features li,
-.specifications li,
 .reviews li {
   color: var(--muted-text);
   line-height: 1.65;
+}
+
+.action-buttons button:disabled,
+.mobile-product-cta button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .features ul {

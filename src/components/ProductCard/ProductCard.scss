@@ -59,6 +59,29 @@
   font-weight: 900;
 }
 
+.product-card__availability {
+  position: absolute;
+  left: 0.85rem;
+  bottom: 0.85rem;
+  padding: 0.32rem 0.5rem;
+  color: var(--success);
+  background: var(--surface-strong);
+  border: 1px solid color-mix(in srgb, var(--success) 32%, var(--border));
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  font-weight: 900;
+}
+
+.product-card__availability--limited {
+  color: var(--warning);
+  border-color: color-mix(in srgb, var(--warning) 32%, var(--border));
+}
+
+.product-card__availability--out-of-stock {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 32%, var(--border));
+}
+
 .price-status-verified {
   color: var(--success);
   border-color: color-mix(in srgb, var(--success) 32%, var(--border));

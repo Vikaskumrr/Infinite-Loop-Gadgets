@@ -26,6 +26,7 @@ describe('ProductCard', () => {
     renderCard({ ...product, stockStatus: 'out-of-stock' });
 
     expect(screen.getByRole('button', { name: /out of stock/i })).toBeDisabled();
+    expect(screen.getAllByText(/out of stock/i).length).toBeGreaterThan(0);
   });
 
   test('calls add to cart for an available product', async () => {

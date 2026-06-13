@@ -1,4 +1,5 @@
 import type { Product } from '../../types';
+import { validateProducts } from '../../domain/productSchema';
 import { apiGet } from './client';
 
 interface ApiSuccessResponse<TData> {
@@ -23,5 +24,25 @@ export const fetchProductsFromApi = async (): Promise<Product[]> => {
     throw new Error('Invalid product API response.');
   }
 
-  return response.data.products;
+  const { products, issues } = validateProducts(response.data.products);
+  if (issues.length > 0) {
+    throw new Error(`Backend product API returned ${issues.length} invalid product record(s).`);
+  }
+
+  return products;
+};
+
+export const fetchRelatedProductsFromApi = async (idOrSlug: string): Promise<Product[]> => {
+  const response = await apiGet<ApiSuccessResponse<{ products: Product[] }>>(`/products/${encodeURIComponent(idOrSlug)}/related`);
+
+  if (!response.success || !Array.isArray(response.data.products)) {
+    throw new Error('Invalid related products API response.');
+  }
+
+  const { products, issues } = validateProducts(response.data.products);
+  if (issues.length > 0) {
+    throw new Error(`Backend related products API returned ${issues.length} invalid product record(s).`);
+  }
+
+  return products;
 };

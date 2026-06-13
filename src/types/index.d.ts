@@ -17,7 +17,9 @@ export interface Product {
   brand: string;
   price: number;
   rating: number;
+  reviewCount?: number;
   productImage: string;
+  images?: string[];
   color: string;
   category?: string;
   subcategory?: string;
@@ -31,6 +33,8 @@ export interface Product {
   imageSourceUrl?: string;
   badge?: 'Sale' | 'New' | 'Best Seller';
   stockStatus?: 'in-stock' | 'out-of-stock';
+  stockQuantity?: number;
+  availabilityStatus?: 'available' | 'limited' | 'out-of-stock';
   compareAtPrice?: string;
   catalogSource?: 'remote' | 'fallback';
 }
