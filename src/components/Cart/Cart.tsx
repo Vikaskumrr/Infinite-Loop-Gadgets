@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import './Cart.scss';
-import Checkout from '../Checkout/Checkout';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 import OptimizedImage from '../OptimizedImage/OptimizedImage';
 import type { LanguageCode, Order, Product, TranslationMap } from '../../types';
@@ -13,8 +13,7 @@ interface CartProps {
   onOrderPlaced?: (order: Order) => void;
 }
 
-const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, language, onOrderPlaced }) => {
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, language }) => {
   useEscapeKey(onClose);
 
   const translations: TranslationMap<'cartTitle' | 'emptyCart' | 'total' | 'checkout' | 'close' | 'remove'> = {
@@ -52,16 +51,7 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, langu
     return cartItems.reduce((acc, item) => acc + item.price, 0);
   };
 
-  const handleCheckout = () => {
-    setIsCheckoutOpen(true);
-  };
-
-  const handleCloseCheckout = () => {
-    setIsCheckoutOpen(false);
-  };
-
   return (
-    <>
       <div className="cart-overlay" onClick={onClose}>
         <div className="cart-modal" role="dialog" aria-modal="true" aria-labelledby="cart-title" onClick={(e) => e.stopPropagation()}>
           <button className="close-btn" onClick={onClose} aria-label={getText('close')}>
@@ -89,21 +79,12 @@ const Cart: React.FC<CartProps> = ({ cartItems, onClose, onRemoveFromCart, langu
                   <span className="total-label">{getText('total')}:</span>
                   <span className="total-price">₹{calculateTotal().toFixed(2)}</span>
                 </div>
-                <button className="checkout-btn" onClick={handleCheckout}>Proceed to Checkout</button>
+                <Link className="checkout-btn checkout-link" to="/checkout" onClick={onClose}>Proceed to Checkout</Link>
               </>
             )}
           </div>
         </div>
       </div>
-      {isCheckoutOpen && (
-        <Checkout
-          products={cartItems}
-          onClose={handleCloseCheckout}
-          language={language}
-          onOrderPlaced={onOrderPlaced}
-        />
-      )}
-    </>
   );
 };
 

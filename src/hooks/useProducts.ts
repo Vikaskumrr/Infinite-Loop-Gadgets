@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
-import type { Product, SortOption } from '../types';
-import { fetchProducts } from '../services/products';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { Product, ProductCatalogSource, SortOption } from '../types';
+import { fetchProductCatalog } from '../services/products';
 import { productMatchesCategory } from '../utils/products';
 
 export const filterAndSortProducts = (
@@ -35,18 +35,31 @@ export const filterAndSortProducts = (
 export const useProducts = (searchTerm: string, sortOption: SortOption, category?: string) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
+  const [catalogSource, setCatalogSource] = useState<ProductCatalogSource>('remote');
+  const [reloadKey, setReloadKey] = useState(0);
+  const hasLoadedProductsRef = useRef(false);
+
+  const retry = useCallback(() => {
+    setReloadKey((currentKey) => currentKey + 1);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
 
     const loadProducts = async () => {
       try {
-        setLoading(true);
-        const nextProducts = await fetchProducts();
+        setLoading(!hasLoadedProductsRef.current);
+        setRefreshing(hasLoadedProductsRef.current);
+        const catalog = await fetchProductCatalog();
         if (isMounted) {
-          setProducts(nextProducts);
+          setProducts(catalog.products);
+          setCatalogSource(catalog.source);
+          setWarning(catalog.warning || null);
           setError(null);
+          hasLoadedProductsRef.current = true;
         }
       } catch (caughtError) {
         if (isMounted) {
@@ -56,6 +69,7 @@ export const useProducts = (searchTerm: string, sortOption: SortOption, category
       } finally {
         if (isMounted) {
           setLoading(false);
+          setRefreshing(false);
         }
       }
     };
@@ -65,7 +79,7 @@ export const useProducts = (searchTerm: string, sortOption: SortOption, category
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [reloadKey]);
 
   const filteredProducts = useMemo(
     () => filterAndSortProducts(products, searchTerm, sortOption, category),
@@ -76,6 +90,10 @@ export const useProducts = (searchTerm: string, sortOption: SortOption, category
     products,
     filteredProducts,
     loading,
+    refreshing,
     error,
+    warning,
+    catalogSource,
+    retry,
   };
 };

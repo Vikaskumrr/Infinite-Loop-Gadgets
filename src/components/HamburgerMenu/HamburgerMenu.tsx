@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiHelpCircle, FiInfo, FiSettings, FiUser } from 'react-icons/fi';
+import { FiHelpCircle, FiInfo, FiSettings, FiUser, FiX } from 'react-icons/fi';
 import Settings from '../Settings/Settings';
 import type { LanguageCode } from '../../types';
 import './HamburgerMenu.scss';
@@ -20,8 +20,11 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ language, onLanguageChang
   const menuRef = useRef<HTMLElement | null>(null);
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
+    const originalPaddingRight = document.body.style.paddingRight;
     if (isOpen) {
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = scrollbarWidth > 0 ? `${scrollbarWidth}px` : originalPaddingRight;
       // focus first focusable
       const focusables = menuRef.current?.querySelectorAll<HTMLElement>(
         'a, button, [tabindex]:not([tabindex="-1"])'
@@ -29,9 +32,11 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ language, onLanguageChang
       focusables?.[0]?.focus();
     } else {
       document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
     }
     return () => {
       document.body.style.overflow = originalOverflow;
+      document.body.style.paddingRight = originalPaddingRight;
     };
   }, [isOpen]);
 
@@ -104,6 +109,12 @@ const HamburgerMenu: React.FC<HamburgerMenuProps> = ({ language, onLanguageChang
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}
           >
+            <div className="menu-header">
+              <span>Menu</span>
+              <button type="button" className="menu-close-btn" onClick={toggleMenu} aria-label="Close menu">
+                <FiX aria-hidden />
+              </button>
+            </div>
             <ul className="menu-groups">
               <li>
                 <Link to="/account" onClick={toggleMenu} className="menu-item">

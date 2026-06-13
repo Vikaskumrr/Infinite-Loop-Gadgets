@@ -131,6 +131,13 @@
   font-weight: 900;
 }
 
+.checkout-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 @keyframes cartSlide {
   from { transform: translateX(24px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }

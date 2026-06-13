@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import OptimizedImage from '../OptimizedImage/OptimizedImage';
-import { slugify } from '../../data/categories';
+import { getProductSlug } from '../../utils/productIdentity';
 import { formatProductPrice } from '../../utils/products';
+import { trackAddToCart } from '../../analytics';
 import type { Product } from '../../types';
 import './ProductCard.scss';
 
@@ -10,23 +11,31 @@ interface ProductCardProps {
   product: Product;
   onAddToCart: (product: Product) => Promise<void> | void;
   onWishlistToggle?: (product: Product) => void;
+  onCompareToggle?: (product: Product) => void;
   isWishlisted?: boolean;
+  isCompared?: boolean;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
   onAddToCart,
   onWishlistToggle,
+  onCompareToggle,
   isWishlisted = false,
+  isCompared = false,
 }) => {
   const [isAdding, setIsAdding] = React.useState(false);
+  const [wasAdded, setWasAdded] = React.useState(false);
   const isOutOfStock = product.stockStatus === 'out-of-stock';
-  const productSlug = slugify(product.name);
+  const productSlug = getProductSlug(product);
 
   const handleAddToCart = async () => {
     setIsAdding(true);
     try {
       await onAddToCart(product);
+      trackAddToCart(product.name, product.price);
+      setWasAdded(true);
+      window.setTimeout(() => setWasAdded(false), 1400);
     } finally {
       setIsAdding(false);
     }
@@ -37,6 +46,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <Link to={`/products/${productSlug}`} className="product-card__media" aria-label={`View ${product.name}`}>
         <OptimizedImage src={product.productImage} alt={product.name} className="product-card__image" sizes="(max-width: 760px) 92vw, 280px" />
         {product.badge && <span className="product-card__badge">{product.badge}</span>}
+        {product.priceStatus && (
+          <span className={`product-card__price-badge price-status-${product.priceStatus}`}>
+            {product.priceStatus === 'verified' ? 'Verified price' : product.priceStatus === 'fallback' ? 'Estimate' : 'Needs review'}
+          </span>
+        )}
       </Link>
 
       <div className="product-card__body">
@@ -65,6 +79,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
           {product.compareAtPrice && <s>{product.compareAtPrice}</s>}
         </div>
         <div className="product-card__actions">
+          {onCompareToggle && (
+            <button
+              type="button"
+              className="product-card__compare"
+              aria-pressed={isCompared}
+              aria-label={isCompared ? `Remove ${product.name} from compare` : `Compare ${product.name}`}
+              onClick={() => onCompareToggle(product)}
+            >
+              {isCompared ? '✓' : '⇄'}
+            </button>
+          )}
           {onWishlistToggle && (
             <button
               type="button"
@@ -83,7 +108,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             aria-busy={isAdding}
             onClick={handleAddToCart}
           >
-            {isOutOfStock ? 'Out of Stock' : isAdding ? 'Adding...' : 'Add to Cart'}
+            {isOutOfStock ? 'Out of Stock' : isAdding ? 'Adding...' : wasAdded ? 'Added' : 'Add to Cart'}
           </button>
         </div>
       </div>

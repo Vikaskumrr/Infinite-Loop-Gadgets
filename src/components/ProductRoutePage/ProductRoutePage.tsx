@@ -1,21 +1,29 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ProductDetails from '../ProductDetails/ProductDetails';
+import RetryState from '../RetryState/RetryState';
 import { ProductDetailSkeleton } from '../Skeletons/Skeletons';
 import { useProducts } from '../../hooks/useProducts';
-import { slugify } from '../../data/categories';
+import { getProductSlug } from '../../utils/productIdentity';
 import type { LanguageCode, Product } from '../../types';
 
 interface ProductRoutePageProps {
   language: LanguageCode;
   onAddToCart: (product: Product) => void;
   onBuyNow: (product: Product) => void;
+  onViewed?: (product: Product) => void;
 }
 
-const ProductRoutePage: React.FC<ProductRoutePageProps> = ({ language, onAddToCart, onBuyNow }) => {
+const ProductRoutePage: React.FC<ProductRoutePageProps> = ({ language, onAddToCart, onBuyNow, onViewed }) => {
   const { productSlug } = useParams();
-  const { products, loading, error } = useProducts('', 'none');
-  const product = products.find((item) => slugify(item.name) === productSlug);
+  const { products, loading, error, retry } = useProducts('', 'none');
+  const product = products.find((item) => getProductSlug(item) === productSlug);
+
+  React.useEffect(() => {
+    if (product) {
+      onViewed?.(product);
+    }
+  }, [onViewed, product]);
 
   if (loading) {
     return <ProductDetailSkeleton />;
@@ -23,11 +31,12 @@ const ProductRoutePage: React.FC<ProductRoutePageProps> = ({ language, onAddToCa
 
   if (error) {
     return (
-      <div className="category-state" role="alert">
-        <span className="state-kicker">Product unavailable</span>
-        <h1>We could not load this product.</h1>
-        <p>{error}</p>
-      </div>
+      <RetryState
+        title="We could not load this product."
+        message={error}
+        actionLabel="Retry product"
+        onRetry={retry}
+      />
     );
   }
 
@@ -45,6 +54,7 @@ const ProductRoutePage: React.FC<ProductRoutePageProps> = ({ language, onAddToCa
   return (
     <ProductDetails
       product={product}
+      relatedProducts={products.filter((item) => item.name !== product.name && (item.category === product.category || item.subcategory === product.subcategory)).slice(0, 4)}
       onClose={() => window.history.back()}
       onAddToCart={onAddToCart}
       onBuyNow={onBuyNow}

@@ -17,4 +17,21 @@ if (gaId) {
   gtag('config', gaId);
 }
 
-export {};
+export const trackEvent = (eventName: string, params: Record<string, unknown> = {}): void => {
+  const analyticsWindow = window as typeof window & {
+    dataLayer?: unknown[];
+    gtag?: (command: string, eventName: string, params?: Record<string, unknown>) => void;
+  };
+
+  if (analyticsWindow.gtag) {
+    analyticsWindow.gtag('event', eventName, params);
+    return;
+  }
+
+  analyticsWindow.dataLayer = analyticsWindow.dataLayer || [];
+  analyticsWindow.dataLayer.push(['event', eventName, params]);
+};
+
+export const trackProductView = (name: string): void => trackEvent('product_view', { item_name: name });
+export const trackAddToCart = (name: string, price: number): void => trackEvent('add_to_cart', { item_name: name, value: price });
+export const trackCheckoutStarted = (value: number): void => trackEvent('checkout_started', { value });

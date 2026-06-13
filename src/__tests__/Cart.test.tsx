@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import Cart from '../components/Cart/Cart';
 import type { Product } from '../types';
 
@@ -10,11 +11,17 @@ const cartItems: Product[] = [
 ];
 
 describe('Cart', () => {
+  const renderCart = (items = cartItems, onRemoveFromCart = vi.fn(), onClose = vi.fn()) => render(
+    <MemoryRouter>
+      <Cart cartItems={items} onClose={onClose} onRemoveFromCart={onRemoveFromCart} language="en" />
+    </MemoryRouter>,
+  );
+
   test('shows cart total and removes items', async () => {
     const user = userEvent.setup();
     const handleRemove = vi.fn();
 
-    render(<Cart cartItems={cartItems} onClose={vi.fn()} onRemoveFromCart={handleRemove} language="en" />);
+    renderCart(cartItems, handleRemove);
 
     expect(screen.getByText('₹92998.00')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: /remove loop phone pro/i }));
@@ -22,21 +29,17 @@ describe('Cart', () => {
     expect(handleRemove).toHaveBeenCalledWith(0);
   });
 
-  test('opens demo checkout from cart', async () => {
-    const user = userEvent.setup();
+  test('links to route-based checkout from cart', () => {
+    renderCart();
 
-    render(<Cart cartItems={cartItems} onClose={vi.fn()} onRemoveFromCart={vi.fn()} language="en" />);
-    await user.click(screen.getByRole('button', { name: /checkout/i }));
-
-    expect(screen.getByRole('heading', { name: /checkout/i })).toBeInTheDocument();
-    expect(screen.getByText(/order summary/i)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /proceed to checkout/i })).toHaveAttribute('href', '/checkout');
   });
 
   test('closes the cart with Escape', async () => {
     const user = userEvent.setup();
     const handleClose = vi.fn();
 
-    render(<Cart cartItems={[]} onClose={handleClose} onRemoveFromCart={vi.fn()} language="en" />);
+    renderCart([], vi.fn(), handleClose);
     await user.keyboard('{Escape}');
 
     expect(handleClose).toHaveBeenCalledTimes(1);

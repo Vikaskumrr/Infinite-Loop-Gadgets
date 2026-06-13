@@ -7,6 +7,7 @@ import { formatProductPrice } from '../../utils/products';
 
 interface ProductDetailsProps {
   product: Product;
+  relatedProducts?: Product[];
   onClose: () => void;
   onAddToCart: (product: Product) => void;
   onBuyNow: (product: Product) => void;
@@ -14,8 +15,18 @@ interface ProductDetailsProps {
   presentation?: 'modal' | 'page';
 }
 
-const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAddToCart, onBuyNow, language, presentation = 'modal' }) => {
+const ProductDetails: React.FC<ProductDetailsProps> = ({ product, relatedProducts = [], onClose, onAddToCart, onBuyNow, language, presentation = 'modal' }) => {
   useEscapeKey(onClose);
+  const TitleTag = presentation === 'page' ? 'h1' : 'h2';
+  const [activeImage, setActiveImage] = React.useState(product.productImage);
+  const [isZoomed, setIsZoomed] = React.useState(false);
+  const [selectedColor, setSelectedColor] = React.useState(product.color);
+  const [selectedStorage, setSelectedStorage] = React.useState(product.specifications?.Storage || 'Standard');
+  const [pincode, setPincode] = React.useState('');
+  const reviewAverage = product.reviews?.length
+    ? product.reviews.reduce((total, review) => total + review.stars, 0) / product.reviews.length
+    : product.rating;
+  const galleryImages = [product.productImage, product.productImage, product.productImage];
 
   const translations: TranslationMap<'description' | 'rating' | 'features' | 'addToCart' | 'buyNow' | 'reviews' | 'specifications' | 'close'> = {
     en: {
@@ -74,9 +85,20 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
           </button>
         )}
         <div className="product-details-content">
-          <OptimizedImage src={product.productImage} alt={product.name} className="product-image" sizes="(max-width: 760px) 92vw, 420px" />
+          <div className="product-gallery">
+            <button type="button" className={`product-image-zoom ${isZoomed ? 'is-zoomed' : ''}`} onClick={() => setIsZoomed((value) => !value)} aria-label={`${isZoomed ? 'Reset' : 'Zoom'} ${product.name} image`}>
+              <OptimizedImage src={activeImage} alt={product.name} className="product-image" sizes="(max-width: 760px) 92vw, 420px" />
+            </button>
+            <div className="gallery-thumbs" aria-label="Product image gallery">
+              {galleryImages.map((image, index) => (
+                <button type="button" key={`${image}-${index}`} className={activeImage === image ? 'active' : ''} onClick={() => setActiveImage(image)} aria-label={`View ${product.name} image ${index + 1}`}>
+                  <OptimizedImage src={image} alt={`${product.name} thumbnail ${index + 1}`} />
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="product-info">
-            <h2 id="product-details-title">{product.name}</h2>
+            <TitleTag id="product-details-title">{product.name}</TitleTag>
             <p className="social-proof">
             <span role="img" aria-label="eye">👁️</span> 20 people viewed this recently.
             </p>
@@ -86,9 +108,37 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
             </p>
             <p className={`product-price ${product.priceStatus === 'todo' ? 'needs-verification' : ''}`}>
               {formatProductPrice(product)}
+              <span className={`price-status-pill price-status-${product.priceStatus || 'fallback'}`}>
+                {product.priceStatus === 'verified' ? 'Verified' : product.priceStatus === 'todo' ? 'Needs review' : 'Estimate'}
+              </span>
             </p>
             <div className="rating">
               {getText('rating')}: {product.rating} ★
+            </div>
+            <div className="variant-panel" aria-label="Product variants">
+              <label>
+                Color
+                <select value={selectedColor} onChange={(event) => setSelectedColor(event.target.value)}>
+                  {[product.color, 'Black', 'Silver', 'Graphite'].filter((value, index, arr) => arr.indexOf(value) === index).map((color) => (
+                    <option key={color} value={color}>{color}</option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Storage
+                <select value={selectedStorage} onChange={(event) => setSelectedStorage(event.target.value)}>
+                  {[selectedStorage, '128 GB', '256 GB', '512 GB'].filter((value, index, arr) => arr.indexOf(value) === index).map((storage) => (
+                    <option key={storage} value={storage}>{storage}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div className="delivery-estimator">
+              <label htmlFor="delivery-pincode">Delivery estimate</label>
+              <div>
+                <input id="delivery-pincode" inputMode="numeric" value={pincode} onChange={(event) => setPincode(event.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="Enter pincode" />
+                <span>{pincode.length === 6 ? 'Arrives in 2-4 business days' : 'Enter 6 digits'}</span>
+              </div>
             </div>
             <div className="description">
               <h3>{getText('description')}</h3>
@@ -119,11 +169,29 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ product, onClose, onAdd
             {product.reviews && product.reviews.length > 0 && (
               <div className="reviews">
                 <h3>{getText('reviews')}</h3>
+                <div className="review-summary">
+                  <strong>{reviewAverage.toFixed(1)} ★</strong>
+                  <span>{product.reviews.length} source-backed review notes</span>
+                  <div><span style={{ width: `${Math.min(100, reviewAverage * 20)}%` }} /></div>
+                </div>
                 <ul>
                   {product.reviews.map((review, index) => (
                     <li key={index}>
                       <span className="review-user">{review.user}</span>: {review.comment}
                       <div className="review-stars">{renderStars(review.stars)}</div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {relatedProducts.length > 0 && (
+              <div className="related-products">
+                <h3>You may also like</h3>
+                <ul>
+                  {relatedProducts.slice(0, 3).map((relatedProduct) => (
+                    <li key={`${relatedProduct.brand}-${relatedProduct.name}`}>
+                      <span>{relatedProduct.name}</span>
+                      <button type="button" onClick={() => onAddToCart(relatedProduct)}>Add</button>
                     </li>
                   ))}
                 </ul>

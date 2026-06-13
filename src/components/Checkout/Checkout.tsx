@@ -10,9 +10,11 @@ interface CheckoutProps {
   onClose: () => void;
   language: LanguageCode;
   onOrderPlaced?: (order: Order) => void;
+  presentation?: 'modal' | 'page';
+  currentStep?: string;
 }
 
-const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrderPlaced }) => {
+const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrderPlaced, presentation = 'modal', currentStep = 'review' }) => {
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   useEscapeKey(onClose);
@@ -54,6 +56,7 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrde
   const calculateTotal = () => {
     return products.reduce((acc, item) => acc + item.price, 0);
   };
+  const steps = ['contact', 'shipping', 'payment', 'review'];
 
   const handlePlaceOrder = () => {
     setIsProcessing(true);
@@ -70,18 +73,27 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrde
     }, 450);
   };
 
-  return (
-    <div className="checkout-overlay" onClick={onClose}>
-      <div className="checkout-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-title" onClick={(e) => e.stopPropagation()}>
+  const content = (
+      <div className={`checkout-modal ${presentation === 'page' ? 'checkout-page-modal' : ''}`} role="dialog" aria-modal={presentation === 'modal' ? 'true' : undefined} aria-labelledby="checkout-title" onClick={(e) => e.stopPropagation()}>
         <button className="close-btn" onClick={onClose} aria-label={getText('close')}>
           &times;
         </button>
         <h3 id="checkout-title">{getText('checkoutTitle')}</h3>
+        {presentation === 'page' && (
+          <nav className="checkout-stepper" aria-label="Checkout steps">
+            {steps.map((step) => (
+              <a className={currentStep === step ? 'active' : ''} href={`/checkout/${step}`} key={step}>
+                {step}
+              </a>
+            ))}
+          </nav>
+        )}
         {isOrderPlaced ? (
           <p className="thank-you-message">{getText('thankYou')}</p>
         ) : (
           <div className="checkout-layout">
             <section className="checkout-form" aria-label="Checkout information">
+              <div className={`checkout-step-panel ${currentStep === 'contact' ? 'active' : ''}`}>
               <div className="checkout-field">
                 <label htmlFor="checkout-email">Email</label>
                 <input id="checkout-email" type="email" placeholder="you@example.com" autoComplete="email" />
@@ -90,6 +102,20 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrde
                 <label htmlFor="checkout-name">Full name</label>
                 <input id="checkout-name" type="text" placeholder="Guest Shopper" autoComplete="name" />
               </div>
+              </div>
+              <div className={`checkout-step-panel ${currentStep === 'shipping' ? 'active' : ''}`}>
+                <div className="checkout-field">
+                  <label htmlFor="checkout-address">Shipping address</label>
+                  <input id="checkout-address" type="text" placeholder="Apartment, street, city" autoComplete="street-address" />
+                </div>
+              </div>
+              <div className={`checkout-step-panel ${currentStep === 'payment' ? 'active' : ''}`}>
+                <div className="checkout-field">
+                  <label htmlFor="checkout-payment">Payment method</label>
+                  <input id="checkout-payment" type="text" placeholder="Demo card ending 4242" />
+                </div>
+              </div>
+              <div className={`checkout-step-panel ${currentStep === 'review' ? 'active' : ''}`}>
               <div className="coupon-row">
                 <label htmlFor="coupon-code">Coupon</label>
                 <div>
@@ -98,6 +124,7 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrde
                 </div>
               </div>
               <p className="checkout-trust">Secure demo checkout. Your cart is safe and no real payment is processed.</p>
+              </div>
             </section>
             <div className="order-summary">
               <h4>{getText('orderSummary')}</h4>
@@ -128,6 +155,15 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrde
           </div>
         )}
       </div>
+  );
+
+  if (presentation === 'page') {
+    return <main className="checkout-page">{content}</main>;
+  }
+
+  return (
+    <div className="checkout-overlay" onClick={onClose}>
+      {content}
     </div>
   );
 };

@@ -45,7 +45,7 @@ describe('App', () => {
   test('renders the product storefront from the API feed', async () => {
     renderApp();
 
-    expect(await screen.findByRole('heading', { name: /loop phone pro/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /loop phone pro/i, level: 1 })).toBeInTheDocument();
     expect(screen.getByText('Graphite')).toBeInTheDocument();
   });
 
@@ -53,7 +53,7 @@ describe('App', () => {
     const user = userEvent.setup();
     renderApp();
 
-    await waitFor(() => expect(screen.getByRole('heading', { name: /loop phone pro/i })).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByRole('heading', { name: /loop phone pro/i, level: 1 })).toBeInTheDocument());
     await user.click(screen.getByRole('button', { name: /open cart/i }));
 
     expect(screen.getByRole('heading', { name: /shopping cart/i })).toBeInTheDocument();
@@ -70,7 +70,7 @@ describe('App', () => {
 
     renderApp();
 
-    expect(await screen.findByRole('heading', { name: /google pixel 8 pro/i })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /google pixel 8 pro/i, level: 1 })).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
@@ -78,7 +78,7 @@ describe('App', () => {
     const user = userEvent.setup();
     renderApp();
 
-    await screen.findByRole('heading', { name: /loop phone pro/i });
+    await screen.findByRole('heading', { name: /loop phone pro/i, level: 1 });
     await user.type(screen.getByRole('textbox', { name: /search products/i }), 'not-a-product');
 
     expect(screen.getByText(/no products found/i)).toBeInTheDocument();

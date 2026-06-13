@@ -1,8 +1,14 @@
-import type { JsonBinResponse, Product } from '../types';
+import type { JsonBinResponse, Product, ProductCatalogResult } from '../types';
 import { enrichProducts, enrichedProducts } from '../data/enrichedProducts';
+import { extractProductPayload, validateProducts, withProductIdentity } from '../domain/productSchema';
+import { logger } from '../utils/logger';
 
 const DEFAULT_BIN_ID = '68bf1a1ed0ea881f4076533c';
 const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
+const PRODUCT_REQUEST_TIMEOUT_MS = 8000;
+
+const withCatalogSource = (products: Product[], source: ProductCatalogResult['source']): Product[] =>
+  products.map((product) => withProductIdentity({ ...product, catalogSource: source }));
 
 const getProductsUrl = (): string => {
   const directUrl = import.meta.env.VITE_PRODUCTS_API_URL as string | undefined;
@@ -14,26 +20,29 @@ const getProductsUrl = (): string => {
   return `${JSONBIN_BASE_URL}/${binId}`;
 };
 
-const isProduct = (value: unknown): value is Product => {
-  if (!value || typeof value !== 'object') {
-    return false;
-  }
+const fetchWithTimeout = async (url: string, timeoutMs: number): Promise<Response> => {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
 
-  const product = value as Partial<Product>;
-  return (
-    typeof product.name === 'string' &&
-    typeof product.brand === 'string' &&
-    typeof product.price === 'number' &&
-    typeof product.rating === 'number' &&
-    typeof product.productImage === 'string' &&
-    typeof product.color === 'string'
-  );
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
 };
 
 export const normalizeProductsResponse = (payload: JsonBinResponse | ProductApiRecordLike): Product[] => {
-  const products = 'record' in payload ? payload.record?.products : (payload as ProductApiRecordLike).products;
+  const rawProducts = extractProductPayload(payload);
+  const { products, issues } = validateProducts(rawProducts);
 
-  if (!Array.isArray(products) || !products.every(isProduct)) {
+  if (issues.length > 0) {
+    logger.warn('Dropped invalid product records from API response.', {
+      invalidCount: issues.length,
+      issues: issues.map(({ index, reason }) => ({ index, reason })),
+    });
+  }
+
+  if (products.length === 0) {
     throw new Error('Invalid product data format from API.');
   }
 
@@ -44,18 +53,33 @@ type ProductApiRecordLike = {
   products?: unknown;
 };
 
-export const fetchProducts = async (): Promise<Product[]> => {
+export const fetchProductCatalog = async (): Promise<ProductCatalogResult> => {
   try {
-    const response = await fetch(getProductsUrl());
+    const response = await fetchWithTimeout(getProductsUrl(), PRODUCT_REQUEST_TIMEOUT_MS);
 
     if (!response.ok) {
       throw new Error(`API request failed with status: ${response.status}`);
     }
 
     const payload = (await response.json()) as JsonBinResponse | ProductApiRecordLike;
-    return normalizeProductsResponse(payload);
+    return {
+      products: withCatalogSource(normalizeProductsResponse(payload), 'remote'),
+      source: 'remote',
+    };
   } catch (error) {
-    console.warn('Using local enriched catalog fallback after product API failure.', error);
-    return enrichedProducts;
+    const warning = error instanceof Error ? error.message : 'Unknown product API failure.';
+    logger.warn('Using local enriched catalog fallback after product API failure.', {
+      reason: warning,
+    });
+    return {
+      products: withCatalogSource(enrichedProducts, 'fallback'),
+      source: 'fallback',
+      warning,
+    };
   }
+};
+
+export const fetchProducts = async (): Promise<Product[]> => {
+  const catalog = await fetchProductCatalog();
+  return catalog.products;
 };

@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './Chatbox.scss';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
+import { enrichedProducts } from '../../data/enrichedProducts';
+import { formatProductPrice } from '../../utils/products';
 
 interface ChatboxProps {
   onClose: () => void;
@@ -24,12 +26,24 @@ const Chatbox: React.FC<ChatboxProps> = ({ onClose }) => {
 
   const handleSendMessage = () => {
     if (input.trim() !== '') {
-      setMessages([...messages, { text: input, sender: 'user' }]);
+      const userInput = input.trim();
+      setMessages([...messages, { text: userInput, sender: 'user' }]);
       setInput('');
-      // Dummy AI response
       responseTimeoutRef.current = window.setTimeout(() => {
-        setMessages(prev => [...prev, { text: " Hehe 😛, I am just a dummy AI for now. I can't process your request.", sender: 'ai' }]);
-      }, 1000);
+        const normalized = userInput.toLowerCase();
+        const budgetMatch = normalized.match(/under\s*₹?\s*(\d+)/i);
+        const budget = budgetMatch ? Number(budgetMatch[1]) : null;
+        const matchedProducts = enrichedProducts.filter((product) => {
+          const searchable = `${product.name} ${product.brand} ${product.category} ${product.subcategory} ${product.features?.join(' ')}`.toLowerCase();
+          return normalized.split(/\s+/).some((term) => term.length > 2 && searchable.includes(term));
+        });
+        const budgetProducts = budget ? enrichedProducts.filter((product) => product.price <= budget).slice(0, 3) : [];
+        const picks = (budgetProducts.length > 0 ? budgetProducts : matchedProducts).slice(0, 3);
+        const response = picks.length > 0
+          ? `I found ${picks.length} good match${picks.length > 1 ? 'es' : ''}: ${picks.map((product) => `${product.name} (${formatProductPrice(product)})`).join(', ')}. You can open a product page, wishlist it, or compare it.`
+          : 'Try asking for "best phone under 80000", "compare Pixel and iPhone", or "show gaming products".';
+        setMessages(prev => [...prev, { text: response, sender: 'ai' }]);
+      }, 500);
     }
   };
 
