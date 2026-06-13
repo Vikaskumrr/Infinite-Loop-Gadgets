@@ -2,6 +2,7 @@ import type { JsonBinResponse, Product, ProductCatalogResult } from '../types';
 import { enrichProducts, enrichedProducts } from '../data/enrichedProducts';
 import { extractProductPayload, validateProducts, withProductIdentity } from '../domain/productSchema';
 import { logger } from '../utils/logger';
+import { fetchProductsFromApi } from './api/productService';
 
 const DEFAULT_BIN_ID = '68bf1a1ed0ea881f4076533c';
 const JSONBIN_BASE_URL = 'https://api.jsonbin.io/v3/b';
@@ -55,6 +56,18 @@ type ProductApiRecordLike = {
 
 export const fetchProductCatalog = async (): Promise<ProductCatalogResult> => {
   try {
+    const products = await fetchProductsFromApi();
+    return {
+      products: withCatalogSource(products, 'remote'),
+      source: 'remote',
+    };
+  } catch (apiError) {
+    logger.warn('Backend product API unavailable; trying legacy product feed.', {
+      reason: apiError instanceof Error ? apiError.message : 'Unknown backend product API failure.',
+    });
+  }
+
+  try {
     const response = await fetchWithTimeout(getProductsUrl(), PRODUCT_REQUEST_TIMEOUT_MS);
 
     if (!response.ok) {
@@ -68,7 +81,7 @@ export const fetchProductCatalog = async (): Promise<ProductCatalogResult> => {
     };
   } catch (error) {
     const warning = error instanceof Error ? error.message : 'Unknown product API failure.';
-    logger.warn('Using local enriched catalog fallback after product API failure.', {
+    logger.warn('Using local enriched catalog fallback after product feed failure.', {
       reason: warning,
     });
     return {

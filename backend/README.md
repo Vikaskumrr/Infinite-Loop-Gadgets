@@ -81,8 +81,10 @@ Current seed scope:
 
 - Brands
 - Categories
+- Products
+- Inventory
 
-Products are intentionally not seeded yet. Product catalog migration belongs to the next database milestone.
+Product data is migrated from the existing frontend catalog snapshot in `src/catalogData.ts`.
 
 Useful workflow for local database setup:
 
@@ -120,6 +122,36 @@ Response:
 }
 ```
 
+Products:
+
+```bash
+curl "http://localhost:5000/api/v1/products?page=1&limit=20&category=smartphones&sort=rating"
+```
+
+Supported query parameters:
+
+- `page`
+- `limit`
+- `search`
+- `category`
+- `brand`
+- `sort`: `price-asc`, `price-desc`, `rating`, `newest`
+- `minPrice`
+- `maxPrice`
+
+Product by ID or slug:
+
+```bash
+curl http://localhost:5000/api/v1/products/google-pixel-8-pro
+curl http://localhost:5000/api/v1/products/pixel-8-pro
+```
+
+Categories:
+
+```bash
+curl http://localhost:5000/api/v1/categories
+```
+
 ## Architecture
 
 - `src/app.ts`: Express initialization, middleware, routes, error handling.
@@ -128,7 +160,11 @@ Response:
 - `src/config/prisma.ts`: singleton Prisma Client and database shutdown helper.
 - `src/middleware`: request logging, not-found handling, centralized error handling.
 - `src/routes`: versioned API routes.
+- `src/controllers`: HTTP request/response orchestration.
+- `src/services`: business logic, pagination, filtering, DTO mapping.
+- `src/repositories`: Prisma database access.
 - `src/utils`: shared API response helpers and async route wrapper.
 - `src/types`: shared API response types.
 - `prisma/schema.prisma`: database schema.
 - `prisma/seed.ts`: seed script for reference data.
+- `docs/catalog-migration.md`: frontend-to-database product migration mapping.
