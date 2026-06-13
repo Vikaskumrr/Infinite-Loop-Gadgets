@@ -25,6 +25,8 @@ const ComparePage = lazy(() => import('./components/ComparePage/ComparePage'));
 const CatalogLabPage = lazy(() => import('./components/CatalogLabPage/CatalogLabPage'));
 const CheckoutRoutePage = lazy(() => import('./components/CheckoutRoutePage/CheckoutRoutePage'));
 const RecentlyViewedPage = lazy(() => import('./components/RecentlyViewedPage/RecentlyViewedPage'));
+const LoginPage = lazy(() => import('./components/AuthPage/LoginPage'));
+const RegisterPage = lazy(() => import('./components/AuthPage/RegisterPage'));
 
 const defaultProfile: UserProfile = {
     id: 'anonymous-shopper',
@@ -122,6 +124,8 @@ function App(): JSX.Element {
                           onOrderPlaced={(order) => setOrders((currentOrders) => [order, ...currentOrders])}
                       />)} />
                       <Route path="/account" element={withRoute('Account', 'Manage your local demo profile and order history.', <AccountDetailsPage profile={profile} orders={orders} onProfileChange={setProfile} />)} />
+                      <Route path="/login" element={withRoute('Login', 'Log in to Infinite Loop Gadgets.', <LoginPage />)} />
+                      <Route path="/register" element={withRoute('Register', 'Create an Infinite Loop Gadgets account.', <RegisterPage />)} />
                       <Route path="/about" element={withRoute('About', 'Learn about Infinite Loop Gadgets.', <AboutUs />)} />
                       <Route path="/products" element={withRoute('Products', 'Browse the full gadget catalog.', <SubCategoryPage language={language} onAddToCart={handleAddToCart} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} wishlistIds={wishlistIds} compareIds={compareIds} />)} />
                       <Route path="/categories/:categorySlug" element={withRoute('Category', 'Browse filtered gadget categories.', <SubCategoryPage language={language} onAddToCart={handleAddToCart} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} wishlistIds={wishlistIds} compareIds={compareIds} />)} />
