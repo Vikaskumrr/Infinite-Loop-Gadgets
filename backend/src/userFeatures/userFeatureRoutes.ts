@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { requireAuth } from '../auth/authMiddleware.js';
+import { userFeatureRateLimit } from '../middleware/rateLimit.js';
 import { userFeatureController } from './userFeatureController.js';
 
 export const userFeatureRouter = Router();
 
 userFeatureRouter.use(requireAuth);
+userFeatureRouter.use(userFeatureRateLimit);
 
 userFeatureRouter.get('/wishlist', userFeatureController.getWishlist);
 userFeatureRouter.post('/wishlist/:productId', userFeatureController.addWishlistItem);
