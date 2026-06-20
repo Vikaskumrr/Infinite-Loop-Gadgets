@@ -28,8 +28,8 @@ const RegisterPage: React.FC = () => {
     <main className="auth-page">
       <section className="auth-panel">
         <h1>Create account</h1>
-        <p>Your local cart, wishlist, and compare data stay on this device until account merge is implemented.</p>
-        <p>{migrationPreview.cartItems} cart items, {migrationPreview.wishlistItems} wishlist items, and {migrationPreview.compareItems} compare items are ready for future migration.</p>
+        <p>Your cart stays local for now, and saved browsing data can be imported after you sign in.</p>
+        <p>{migrationPreview.cartItems} cart items, {migrationPreview.wishlistItems} wishlist items, and {migrationPreview.compareItems} compare items are already waiting on this device.</p>
         <form onSubmit={handleSubmit}>
           <label>Name<input value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" required /></label>
           <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label>

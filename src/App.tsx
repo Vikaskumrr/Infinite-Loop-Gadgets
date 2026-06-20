@@ -1,5 +1,7 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { useAuth } from './auth/useAuth';
+import { useCart } from './cart/hooks/useCart';
 import HomePage from './components/HomePage/HomePage';
 import Header from './components/Header/Header';
 import Cart from './components/Cart/Cart';
@@ -11,8 +13,18 @@ import Seo from './components/Seo/Seo';
 import OfflineBanner from './components/OfflineBanner/OfflineBanner';
 import { useLocalStorageState } from './hooks/useLocalStorageState';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
-import { getProductId } from './utils/productIdentity';
-import type { LanguageCode, Order, Product, SortOption, UserProfile } from './types';
+import {
+    clearMigratedGuestFeatureKeys,
+    clearMigrationSkipped,
+    readGuestFeatureData,
+    runGuestDataMigration,
+    shouldPromptForMigration,
+    markMigrationSkipped,
+} from './user/migrationService';
+import { useCompare } from './user/hooks/useCompare';
+import { useRecentlyViewed } from './user/hooks/useRecentlyViewed';
+import { useWishlist } from './user/hooks/useWishlist';
+import type { LanguageCode, Order, SortOption, UserProfile } from './types';
 import './styles/app.scss';
 
 const AccountDetailsPage = lazy(() => import('./components/AccountDetailsPage/AccountDetailsPage'));
@@ -27,6 +39,8 @@ const CheckoutRoutePage = lazy(() => import('./components/CheckoutRoutePage/Chec
 const RecentlyViewedPage = lazy(() => import('./components/RecentlyViewedPage/RecentlyViewedPage'));
 const LoginPage = lazy(() => import('./components/AuthPage/LoginPage'));
 const RegisterPage = lazy(() => import('./components/AuthPage/RegisterPage'));
+const UserDataMigrationPrompt = lazy(() => import('./components/UserDataMigrationPrompt/UserDataMigrationPrompt'));
+const CartMigrationPrompt = lazy(() => import('./components/CartMigrationPrompt/CartMigrationPrompt'));
 
 const defaultProfile: UserProfile = {
     id: 'anonymous-shopper',
@@ -38,17 +52,43 @@ const defaultProfile: UserProfile = {
 };
 
 function App(): JSX.Element {
+    const { user, token } = useAuth();
+    const {
+        cart,
+        addItem,
+        addMany,
+        updateQuantity,
+        removeItem,
+        clearCart,
+        expandedProducts,
+        cartMigrationPrompt,
+    } = useCart();
     const [language, setLanguage] = useState<LanguageCode>('en');
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const [cartItems, setCartItems] = useLocalStorageState<Product[]>('ilg.cart', []);
     const [orders, setOrders] = useLocalStorageState<Order[]>('ilg.orders', []);
     const [profile, setProfile] = useLocalStorageState<UserProfile>('ilg.profile', defaultProfile);
-    const [wishlistIds, setWishlistIds] = useLocalStorageState<string[]>('ilg.wishlist', []);
-    const [compareIds, setCompareIds] = useLocalStorageState<string[]>('ilg.compare', []);
-    const [recentlyViewedIds, setRecentlyViewedIds] = useLocalStorageState<string[]>('ilg.recentlyViewed', []);
+    const {
+        wishlistIds,
+        toggleWishlist: handleToggleWishlist,
+        importWishlist,
+    } = useWishlist(token);
+    const {
+        compareIds,
+        toggleCompare: handleToggleCompare,
+        importCompare,
+    } = useCompare(token);
+    const {
+        recentlyViewedIds,
+        trackRecentlyViewed: handleTrackRecentlyViewed,
+        importRecentlyViewed,
+    } = useRecentlyViewed(token);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortOption, setSortOption] = useState<SortOption>('none');
     const isOnline = useOnlineStatus();
+    const [showMigrationPrompt, setShowMigrationPrompt] = useState(false);
+    const [migrationPreview, setMigrationPreview] = useState(() => readGuestFeatureData());
+    const [migrationError, setMigrationError] = useState<string | null>(null);
+    const [migrationLoading, setMigrationLoading] = useState(false);
 
     const withRoute = (title: string, description: string, element: React.ReactNode) => (
         <RouteBoundary>
@@ -65,36 +105,61 @@ function App(): JSX.Element {
         setIsCartOpen(false);
     };
 
-    const handleRemoveFromCart = (index: number) => {
-      const newCartItems = [...cartItems];
-      newCartItems.splice(index, 1);
-      setCartItems(newCartItems);
-    };
+    React.useEffect(() => {
+        if (!user?.id) {
+            setShowMigrationPrompt(false);
+            return;
+        }
 
-    const handleAddToCart = (product: Product) => {
-        setCartItems((items) => [...items, product]);
-    };
+        const nextPreview = readGuestFeatureData();
+        setMigrationPreview(nextPreview);
 
-    const handleToggleWishlist = (product: Product) => {
-        const id = getProductId(product);
-        setWishlistIds((ids) => (ids.includes(id) ? ids.filter((item) => item !== id) : [id, ...ids]));
-    };
+        if (shouldPromptForMigration(user.id, nextPreview)) {
+            setShowMigrationPrompt(true);
+            setMigrationError(null);
+            clearMigrationSkipped(user.id);
+        } else {
+            setShowMigrationPrompt(false);
+        }
+    }, [user?.id]);
 
-    const handleToggleCompare = (product: Product) => {
-        const id = getProductId(product);
-        setCompareIds((ids) => {
-            if (ids.includes(id)) {
-                return ids.filter((item) => item !== id);
+    const handleSkipMigration = React.useCallback(() => {
+        if (user?.id) {
+            markMigrationSkipped(user.id);
+        }
+        setShowMigrationPrompt(false);
+        setMigrationError(null);
+    }, [user?.id]);
+
+    const handleImportMigration = React.useCallback(async () => {
+        if (!user?.id) {
+            return;
+        }
+
+        setMigrationLoading(true);
+        setMigrationError(null);
+
+        try {
+            const result = await runGuestDataMigration(migrationPreview, {
+                importWishlist,
+                importCompare,
+                importRecentlyViewed,
+            });
+
+            clearMigratedGuestFeatureKeys(result);
+            setMigrationPreview(readGuestFeatureData());
+
+            if (result.failedKeys.length > 0) {
+                setMigrationError(`We imported what we could, but ${result.failedKeys.join(', ')} still need attention.`);
+            } else {
+                setShowMigrationPrompt(false);
             }
-
-            return [id, ...ids].slice(0, 4);
-        });
-    };
-
-    const handleTrackRecentlyViewed = (product: Product) => {
-        const id = getProductId(product);
-        setRecentlyViewedIds((ids) => [id, ...ids.filter((item) => item !== id)].slice(0, 8));
-    };
+        } catch (caughtError) {
+            setMigrationError(caughtError instanceof Error ? caughtError.message : 'Unable to migrate your saved items right now.');
+        } finally {
+            setMigrationLoading(false);
+        }
+    }, [importCompare, importRecentlyViewed, importWishlist, migrationPreview, user?.id]);
 
 
     return (
@@ -108,7 +173,7 @@ function App(): JSX.Element {
                 sortOption={sortOption}
                 onSortChange={setSortOption}
                 onOpenCart={handleOpenCart}
-                cartCount={cartItems.length}
+                cartCount={cart.itemCount}
             />
             <OfflineBanner isOnline={isOnline} />
             <main className="content">
@@ -117,8 +182,8 @@ function App(): JSX.Element {
                       <Route path="/" element={withRoute('Premium Gadget Store', 'Shop curated gadgets with wishlist, compare, and demo checkout.', <HomePage
                           language={language}
                           onCloseCart={handleCloseCart}
-                          cartItems={cartItems}
-                          setCartItems={setCartItems}
+                          onAddToCart={addItem}
+                          onAddBundle={addMany}
                           searchTerm={searchTerm}
                           sortOption={sortOption}
                           onOrderPlaced={(order) => setOrders((currentOrders) => [order, ...currentOrders])}
@@ -127,20 +192,23 @@ function App(): JSX.Element {
                       <Route path="/login" element={withRoute('Login', 'Log in to Infinite Loop Gadgets.', <LoginPage />)} />
                       <Route path="/register" element={withRoute('Register', 'Create an Infinite Loop Gadgets account.', <RegisterPage />)} />
                       <Route path="/about" element={withRoute('About', 'Learn about Infinite Loop Gadgets.', <AboutUs />)} />
-                      <Route path="/products" element={withRoute('Products', 'Browse the full gadget catalog.', <SubCategoryPage language={language} onAddToCart={handleAddToCart} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} wishlistIds={wishlistIds} compareIds={compareIds} />)} />
-                      <Route path="/categories/:categorySlug" element={withRoute('Category', 'Browse filtered gadget categories.', <SubCategoryPage language={language} onAddToCart={handleAddToCart} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} wishlistIds={wishlistIds} compareIds={compareIds} />)} />
-                      <Route path="/categories/:categorySlug/:subCategorySlug" element={withRoute('Category', 'Browse filtered gadget categories.', <SubCategoryPage language={language} onAddToCart={handleAddToCart} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} wishlistIds={wishlistIds} compareIds={compareIds} />)} />
-                      <Route path="/products/:productSlug" element={withRoute('Product Details', 'Inspect product specs, delivery, reviews, and recommendations.', <ProductRoutePage language={language} onAddToCart={handleAddToCart} onBuyNow={(product) => setCartItems([product])} onViewed={handleTrackRecentlyViewed} />)} />
-                      <Route path="/wishlist" element={withRoute('Wishlist', 'Review products saved locally to your wishlist.', <WishlistPage wishlistIds={wishlistIds} compareIds={compareIds} onAddToCart={handleAddToCart} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} />)} />
-                      <Route path="/recently-viewed" element={withRoute('Recently Viewed', 'Continue browsing recently viewed gadgets.', <RecentlyViewedPage recentlyViewedIds={recentlyViewedIds} wishlistIds={wishlistIds} compareIds={compareIds} onAddToCart={handleAddToCart} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} />)} />
-                      <Route path="/compare" element={withRoute('Compare Gadgets', 'Compare shortlisted gadgets side by side.', <ComparePage compareIds={compareIds} onAddToCart={handleAddToCart} onCompareToggle={handleToggleCompare} />)} />
-                      <Route path="/checkout" element={withRoute('Checkout', 'Complete the demo checkout flow.', <CheckoutRoutePage products={cartItems} language={language} onOrderPlaced={(order) => {
+                      <Route path="/products" element={withRoute('Products', 'Browse the full gadget catalog.', <SubCategoryPage language={language} onAddToCart={addItem} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} wishlistIds={wishlistIds} compareIds={compareIds} />)} />
+                      <Route path="/categories/:categorySlug" element={withRoute('Category', 'Browse filtered gadget categories.', <SubCategoryPage language={language} onAddToCart={addItem} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} wishlistIds={wishlistIds} compareIds={compareIds} />)} />
+                      <Route path="/categories/:categorySlug/:subCategorySlug" element={withRoute('Category', 'Browse filtered gadget categories.', <SubCategoryPage language={language} onAddToCart={addItem} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} wishlistIds={wishlistIds} compareIds={compareIds} />)} />
+                      <Route path="/products/:productSlug" element={withRoute('Product Details', 'Inspect product specs, delivery, reviews, and recommendations.', <ProductRoutePage language={language} onAddToCart={addItem} onBuyNow={async (product) => {
+                          await clearCart();
+                          await addItem(product, 1);
+                      }} onViewed={handleTrackRecentlyViewed} />)} />
+                      <Route path="/wishlist" element={withRoute('Wishlist', 'Review products saved locally to your wishlist.', <WishlistPage wishlistIds={wishlistIds} compareIds={compareIds} onAddToCart={addItem} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} />)} />
+                      <Route path="/recently-viewed" element={withRoute('Recently Viewed', 'Continue browsing recently viewed gadgets.', <RecentlyViewedPage recentlyViewedIds={recentlyViewedIds} wishlistIds={wishlistIds} compareIds={compareIds} onAddToCart={addItem} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} />)} />
+                      <Route path="/compare" element={withRoute('Compare Gadgets', 'Compare shortlisted gadgets side by side.', <ComparePage compareIds={compareIds} onAddToCart={addItem} onCompareToggle={handleToggleCompare} />)} />
+                      <Route path="/checkout" element={withRoute('Checkout', 'Complete the demo checkout flow.', <CheckoutRoutePage products={expandedProducts} language={language} onOrderPlaced={(order) => {
                           setOrders((currentOrders) => [order, ...currentOrders]);
-                          setCartItems([]);
+                          void clearCart();
                       }} />)} />
-                      <Route path="/checkout/:step" element={withRoute('Checkout', 'Complete the demo checkout flow.', <CheckoutRoutePage products={cartItems} language={language} onOrderPlaced={(order) => {
+                      <Route path="/checkout/:step" element={withRoute('Checkout', 'Complete the demo checkout flow.', <CheckoutRoutePage products={expandedProducts} language={language} onOrderPlaced={(order) => {
                           setOrders((currentOrders) => [order, ...currentOrders]);
-                          setCartItems([]);
+                          void clearCart();
                       }} />)} />
                       <Route path="/catalog-lab" element={withRoute('Catalog Lab', 'Audit product data quality and price status.', <CatalogLabPage />)} />
                       <Route path="*" element={withRoute('Page Not Found', 'Return to the storefront.', <NotFoundPage />)} />
@@ -148,15 +216,37 @@ function App(): JSX.Element {
                 </Suspense>
                 {isCartOpen && (
                     <Cart
-                        cartItems={cartItems}
+                        cartItems={cart.items}
                         onClose={handleCloseCart}
-                        onRemoveFromCart={handleRemoveFromCart}
+                        onRemoveFromCart={removeItem}
+                        onUpdateQuantity={updateQuantity}
+                        onClearCart={clearCart}
                         language={language}
-                        onOrderPlaced={(order) => {
-                            setOrders((currentOrders) => [order, ...currentOrders]);
-                            setCartItems([]);
-                        }}
                     />
+                )}
+                {showMigrationPrompt && (
+                    <Suspense fallback={null}>
+                        <UserDataMigrationPrompt
+                            wishlistCount={migrationPreview.wishlistIds.length}
+                            compareCount={migrationPreview.compareIds.length}
+                            recentlyViewedCount={migrationPreview.recentlyViewedIds.length}
+                            loading={migrationLoading}
+                            error={migrationError}
+                            onImport={handleImportMigration}
+                            onSkip={handleSkipMigration}
+                        />
+                    </Suspense>
+                )}
+                {!showMigrationPrompt && cartMigrationPrompt.open && (
+                    <Suspense fallback={null}>
+                        <CartMigrationPrompt
+                            itemCount={cartMigrationPrompt.items.reduce((total, item) => total + item.quantity, 0)}
+                            loading={cartMigrationPrompt.loading}
+                            error={cartMigrationPrompt.error}
+                            onImport={() => { void cartMigrationPrompt.importGuestCart(); }}
+                            onSkip={cartMigrationPrompt.skipGuestCartImport}
+                        />
+                    </Suspense>
                 )}
             </main>
             <MouseTrailer />

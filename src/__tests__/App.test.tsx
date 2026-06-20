@@ -2,6 +2,8 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from '../auth/AuthContext';
+import { CartProvider } from '../cart/CartProvider';
 import App from '../App';
 import type { Product } from '../types';
 
@@ -21,7 +23,11 @@ const mockProducts: Product[] = [
 const renderApp = () => {
   return render(
     <BrowserRouter>
-      <App />
+      <AuthProvider>
+        <CartProvider>
+          <App />
+        </CartProvider>
+      </AuthProvider>
     </BrowserRouter>,
   );
 };

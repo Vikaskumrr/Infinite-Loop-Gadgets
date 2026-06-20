@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { AuthProvider } from '../auth/AuthContext';
+import { CartProvider } from '../cart/CartProvider';
 import App from '../App';
 import type { Product } from '../types';
 
@@ -40,7 +42,11 @@ describe('responsive smoke coverage', () => {
 
     render(
       <MemoryRouter>
-        <App />
+        <AuthProvider>
+          <CartProvider>
+            <App />
+          </CartProvider>
+        </AuthProvider>
       </MemoryRouter>,
     );
 

@@ -16,8 +16,8 @@ import './HomePage.scss';
 interface HomePageProps {
   language: LanguageCode;
   onCloseCart: () => void;
-  cartItems: ProductType[];
-  setCartItems: React.Dispatch<React.SetStateAction<ProductType[]>>;
+  onAddToCart: (product: ProductType, quantity?: number) => Promise<void> | void;
+  onAddBundle: (products: ProductType[]) => Promise<void> | void;
   searchTerm: string;
   sortOption: SortOption;
   onOrderPlaced?: (order: Order) => void;
@@ -26,8 +26,8 @@ interface HomePageProps {
 const HomePage: React.FC<HomePageProps> = ({
   language,
   onCloseCart,
-  cartItems,
-  setCartItems,
+  onAddToCart,
+  onAddBundle,
   searchTerm,
   sortOption,
   onOrderPlaced,
@@ -70,10 +70,6 @@ const HomePage: React.FC<HomePageProps> = ({
   const handleCloseCheckout = () => {
     setIsCheckoutOpen(false);
     setCheckoutItems([]);
-  };
-
-  const handleAddToCart = (product: ProductType) => {
-    setCartItems([...cartItems, product]);
   };
 
   const handleBuyNow = (product: ProductType) => {
@@ -137,7 +133,7 @@ const HomePage: React.FC<HomePageProps> = ({
         <ProductDetails
           product={filteredProducts[currentIndex]}
           onClose={handleCloseDetails}
-          onAddToCart={handleAddToCart}
+          onAddToCart={(product) => void onAddToCart(product, 1)}
           onBuyNow={handleBuyNow}
           language={language}
         />
@@ -157,14 +153,14 @@ const HomePage: React.FC<HomePageProps> = ({
         </div>
         <div className="home-product-grid">
           {[...filteredProducts].sort((a, b) => b.rating - a.rating).slice(0, 4).map((product) => (
-            <ProductCard key={`${product.brand}-${product.name}`} product={product} onAddToCart={handleAddToCart} />
+            <ProductCard key={`${product.brand}-${product.name}`} product={product} onAddToCart={(nextProduct) => onAddToCart(nextProduct, 1)} />
           ))}
         </div>
       </section>
 
       <section className="trust-row" aria-label="Store promises">
         <div><strong>Demo checkout</strong><span>No real payment processed</span></div>
-        <div><strong>Local cart</strong><span>Persists on this device</span></div>
+        <div><strong>Persistent cart</strong><span>Syncs to your account after sign-in</span></div>
         <div><strong>Source-backed catalog</strong><span>Price status shown clearly</span></div>
         <div><strong>Compare tools</strong><span>Shortlist before buying</span></div>
       </section>
@@ -179,7 +175,7 @@ const HomePage: React.FC<HomePageProps> = ({
           type="button"
           onClick={() => {
             const bundle = filteredProducts.filter((product) => /phone|headphone|power/i.test(`${product.name} ${product.subcategory}`)).slice(0, 3);
-            setCartItems((items) => [...items, ...bundle]);
+            void onAddBundle(bundle);
           }}
         >
           Add suggested bundle

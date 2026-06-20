@@ -10,6 +10,9 @@ const envSchema = z.object({
   FRONTEND_URL: z.string().url().default('http://localhost:5173'),
   JWT_SECRET: z.string().min(32).default('development-only-jwt-secret-change-before-production'),
   JWT_EXPIRES_IN: z.string().min(1).default('1h'),
+  COMPARE_MAX_ITEMS: z.coerce.number().int().positive().max(10).default(4),
+  RECENTLY_VIEWED_LIMIT: z.coerce.number().int().positive().max(50).default(8),
+  CART_MAX_QUANTITY_PER_ITEM: z.coerce.number().int().positive().max(50).default(10),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
