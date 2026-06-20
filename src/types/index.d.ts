@@ -50,10 +50,17 @@ export interface UserProfile {
 
 export interface Order {
   id: string;
-  items: Product[];
-  total: number;
+  items: Array<{
+    id?: string;
+    productId: string;
+    quantity: number;
+    price: number;
+    product: Product;
+  }>;
+  totalAmount: number;
   createdAt: string;
-  status: 'placed';
+  updatedAt?: string;
+  status: 'payment_pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
 }
 
 export interface ProductApiRecord {

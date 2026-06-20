@@ -69,6 +69,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [migrationLoading, setMigrationLoading] = React.useState(false);
   const [migrationError, setMigrationError] = React.useState<string | null>(null);
 
+  const refreshCart = React.useCallback(async () => {
+    if (!token) {
+      setCart(readLocalCart());
+      return;
+    }
+
+    const nextCart = await cartService.getCart(token);
+    setCart(nextCart);
+  }, [token]);
+
   React.useEffect(() => {
     if (!token) {
       setCart(readLocalCart());
@@ -78,10 +88,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     let isMounted = true;
     setLoading(true);
-    void cartService.getCart(token)
-      .then((nextCart) => {
+    void refreshCart()
+      .then(() => {
         if (!isMounted) return;
-        setCart(nextCart);
         setError(null);
       })
       .catch((caughtError) => {
@@ -96,7 +105,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       isMounted = false;
     };
-  }, [token]);
+  }, [refreshCart, token]);
 
   React.useEffect(() => {
     if (!user?.id) {
@@ -220,8 +229,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     addMany,
     updateQuantity,
     removeItem,
-    clearCart,
-    expandedProducts: expandCartItems(cart.items),
+      clearCart,
+      refreshCart,
+      expandedProducts: expandCartItems(cart.items),
     cartMigrationPrompt: {
       open: migrationOpen,
       items: migrationItems,
@@ -230,7 +240,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       importGuestCart,
       skipGuestCartImport,
     },
-  }), [addItem, addMany, cart, clearCart, error, importGuestCart, loading, migrationError, migrationItems, migrationLoading, migrationOpen, removeItem, skipGuestCartImport, updateQuantity]);
+  }), [addItem, addMany, cart, clearCart, error, importGuestCart, loading, migrationError, migrationItems, migrationLoading, migrationOpen, refreshCart, removeItem, skipGuestCartImport, updateQuantity]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };

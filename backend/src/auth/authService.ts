@@ -8,12 +8,14 @@ export interface PublicUser {
   id: string;
   name: string;
   email: string;
+  role: 'CUSTOMER' | 'ADMIN';
 }
 
 const toPublicUser = (user: User): PublicUser => ({
   id: user.id,
   name: user.name,
   email: user.email,
+  role: user.role,
 });
 
 export class AuthError extends Error {

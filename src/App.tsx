@@ -1,5 +1,5 @@
 import React, { useState, lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { useAuth } from './auth/useAuth';
 import { useCart } from './cart/hooks/useCart';
 import HomePage from './components/HomePage/HomePage';
@@ -11,6 +11,7 @@ import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary';
 import RouteBoundary from './components/RouteBoundary/RouteBoundary';
 import Seo from './components/Seo/Seo';
 import OfflineBanner from './components/OfflineBanner/OfflineBanner';
+import AdminRoute from './admin/AdminRoute';
 import { useLocalStorageState } from './hooks/useLocalStorageState';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import {
@@ -24,7 +25,7 @@ import {
 import { useCompare } from './user/hooks/useCompare';
 import { useRecentlyViewed } from './user/hooks/useRecentlyViewed';
 import { useWishlist } from './user/hooks/useWishlist';
-import type { LanguageCode, Order, SortOption, UserProfile } from './types';
+import type { LanguageCode, SortOption, UserProfile } from './types';
 import './styles/app.scss';
 
 const AccountDetailsPage = lazy(() => import('./components/AccountDetailsPage/AccountDetailsPage'));
@@ -41,6 +42,11 @@ const LoginPage = lazy(() => import('./components/AuthPage/LoginPage'));
 const RegisterPage = lazy(() => import('./components/AuthPage/RegisterPage'));
 const UserDataMigrationPrompt = lazy(() => import('./components/UserDataMigrationPrompt/UserDataMigrationPrompt'));
 const CartMigrationPrompt = lazy(() => import('./components/CartMigrationPrompt/CartMigrationPrompt'));
+const AdminLayout = lazy(() => import('./admin/AdminLayout'));
+const AdminDashboard = lazy(() => import('./admin/AdminDashboard'));
+const ProductManagement = lazy(() => import('./admin/ProductManagement'));
+const InventoryManagement = lazy(() => import('./admin/InventoryManagement'));
+const OrderManagement = lazy(() => import('./admin/OrderManagement'));
 
 const defaultProfile: UserProfile = {
     id: 'anonymous-shopper',
@@ -52,6 +58,7 @@ const defaultProfile: UserProfile = {
 };
 
 function App(): JSX.Element {
+    const navigate = useNavigate();
     const { user, token } = useAuth();
     const {
         cart,
@@ -60,12 +67,10 @@ function App(): JSX.Element {
         updateQuantity,
         removeItem,
         clearCart,
-        expandedProducts,
         cartMigrationPrompt,
     } = useCart();
     const [language, setLanguage] = useState<LanguageCode>('en');
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const [orders, setOrders] = useLocalStorageState<Order[]>('ilg.orders', []);
     const [profile, setProfile] = useLocalStorageState<UserProfile>('ilg.profile', defaultProfile);
     const {
         wishlistIds,
@@ -186,9 +191,8 @@ function App(): JSX.Element {
                           onAddBundle={addMany}
                           searchTerm={searchTerm}
                           sortOption={sortOption}
-                          onOrderPlaced={(order) => setOrders((currentOrders) => [order, ...currentOrders])}
                       />)} />
-                      <Route path="/account" element={withRoute('Account', 'Manage your local demo profile and order history.', <AccountDetailsPage profile={profile} orders={orders} onProfileChange={setProfile} />)} />
+                      <Route path="/account" element={withRoute('Account', 'Manage your profile and review your order history.', <AccountDetailsPage profile={profile} onProfileChange={setProfile} />)} />
                       <Route path="/login" element={withRoute('Login', 'Log in to Infinite Loop Gadgets.', <LoginPage />)} />
                       <Route path="/register" element={withRoute('Register', 'Create an Infinite Loop Gadgets account.', <RegisterPage />)} />
                       <Route path="/about" element={withRoute('About', 'Learn about Infinite Loop Gadgets.', <AboutUs />)} />
@@ -198,19 +202,23 @@ function App(): JSX.Element {
                       <Route path="/products/:productSlug" element={withRoute('Product Details', 'Inspect product specs, delivery, reviews, and recommendations.', <ProductRoutePage language={language} onAddToCart={addItem} onBuyNow={async (product) => {
                           await clearCart();
                           await addItem(product, 1);
+                          navigate('/checkout/review');
                       }} onViewed={handleTrackRecentlyViewed} />)} />
                       <Route path="/wishlist" element={withRoute('Wishlist', 'Review products saved locally to your wishlist.', <WishlistPage wishlistIds={wishlistIds} compareIds={compareIds} onAddToCart={addItem} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} />)} />
                       <Route path="/recently-viewed" element={withRoute('Recently Viewed', 'Continue browsing recently viewed gadgets.', <RecentlyViewedPage recentlyViewedIds={recentlyViewedIds} wishlistIds={wishlistIds} compareIds={compareIds} onAddToCart={addItem} onWishlistToggle={handleToggleWishlist} onCompareToggle={handleToggleCompare} />)} />
                       <Route path="/compare" element={withRoute('Compare Gadgets', 'Compare shortlisted gadgets side by side.', <ComparePage compareIds={compareIds} onAddToCart={addItem} onCompareToggle={handleToggleCompare} />)} />
-                      <Route path="/checkout" element={withRoute('Checkout', 'Complete the demo checkout flow.', <CheckoutRoutePage products={expandedProducts} language={language} onOrderPlaced={(order) => {
-                          setOrders((currentOrders) => [order, ...currentOrders]);
-                          void clearCart();
-                      }} />)} />
-                      <Route path="/checkout/:step" element={withRoute('Checkout', 'Complete the demo checkout flow.', <CheckoutRoutePage products={expandedProducts} language={language} onOrderPlaced={(order) => {
-                          setOrders((currentOrders) => [order, ...currentOrders]);
-                          void clearCart();
-                      }} />)} />
+                      <Route path="/checkout" element={withRoute('Checkout', 'Complete the account checkout flow.', <CheckoutRoutePage language={language} />)} />
+                      <Route path="/checkout/:step" element={withRoute('Checkout', 'Complete the account checkout flow.', <CheckoutRoutePage language={language} />)} />
                       <Route path="/catalog-lab" element={withRoute('Catalog Lab', 'Audit product data quality and price status.', <CatalogLabPage />)} />
+                      <Route
+                        path="/admin"
+                        element={withRoute('Admin Dashboard', 'Manage products, inventory, and orders.', <AdminRoute><AdminLayout /></AdminRoute>)}
+                      >
+                        <Route index element={<AdminDashboard />} />
+                        <Route path="products" element={<ProductManagement />} />
+                        <Route path="inventory" element={<InventoryManagement />} />
+                        <Route path="orders" element={<OrderManagement />} />
+                      </Route>
                       <Route path="*" element={withRoute('Page Not Found', 'Return to the storefront.', <NotFoundPage />)} />
                   </Routes>
                 </Suspense>
