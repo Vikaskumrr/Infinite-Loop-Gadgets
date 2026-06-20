@@ -8,7 +8,7 @@ export interface ProductQuery {
   orderBy?: Prisma.ProductOrderByWithRelationInput;
 }
 
-const includeProductRelations = {
+export const includeProductRelations = {
   brand: true,
   category: {
     include: {

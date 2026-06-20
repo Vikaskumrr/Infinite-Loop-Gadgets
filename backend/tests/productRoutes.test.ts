@@ -47,6 +47,7 @@ const productServiceMock = {
 
 jest.unstable_mockModule('../src/services/productService.js', () => ({
   productService: productServiceMock,
+  toProductDto: jest.fn(),
 }));
 
 const { app } = await import('../src/app.js');

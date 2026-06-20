@@ -1,6 +1,6 @@
 # Infinite Loop Gadgets
 
-Infinite Loop Gadgets is a Vite + React + TypeScript ecommerce demo for browsing premium tech products, viewing product details, managing a persistent local cart, placing local demo orders, and maintaining an anonymous browser-based profile.
+Infinite Loop Gadgets is a Vite + React + TypeScript ecommerce storefront for browsing premium tech products, viewing product details, managing a guest or signed-in cart, placing demo orders, and syncing account-backed wishlist, compare, and recently viewed data.
 
 ## Tech Stack
 
@@ -8,6 +8,8 @@ Infinite Loop Gadgets is a Vite + React + TypeScript ecommerce demo for browsing
 - Vite for local development and production builds
 - SCSS component styles with shared design tokens
 - React Router for client-side routes
+- Express + Prisma backend for catalog and user-feature APIs
+- CartProvider for guest/authenticated cart state orchestration
 - Vitest and Testing Library for unit/component tests
 - npm with `package-lock.json`
 
@@ -47,14 +49,34 @@ VITE_SENTRY_DSN=
 
 Product data defaults to the existing JSONBin bin. `VITE_PRODUCTS_API_URL` can point to a direct endpoint that returns either `{ "record": { "products": [] } }` or `{ "products": [] }`.
 
+When the backend is running locally, set:
+
+```bash
+VITE_API_URL=http://localhost:5000/api/v1
+```
+
 ## Routes
 
 - `/` - Product storefront
 - `/account` - Local anonymous profile and order history
 - `/about` - About page
 - `/products` - Category product browsing, optionally filtered with `?category=smartphones`
+- `/login` - Sign in
+- `/register` - Create account
+- `/wishlist` - Saved products
+- `/compare` - Compare shortlist
+- `/recently-viewed` - Browsing history
 
-No backend, database, real payment processing, or external authentication service is implemented in this repository. Profile, cart, and demo order data are stored in browser `localStorage`.
+The backend now provides product, authentication, wishlist, compare, and recently viewed APIs. Cart, checkout, orders, and account profile editing remain frontend-local/demo flows for now.
+
+Guest browsing data in `localStorage` can be imported into a signed-in account after login. Guest cart items can also be merged into the authenticated cart, with backend inventory validation during import.
+
+## Cart Architecture
+
+- Signed-out visitors use a browser-local guest cart stored under `ilg.cart`.
+- Signed-in users use the authenticated `/api/v1/cart` backend cart.
+- The frontend `CartProvider` chooses the correct source automatically and exposes a single `useCart()` interface to components.
+- When a user signs in and a guest cart exists, the app offers to import it into the account cart. Duplicate products merge by quantity and unavailable items are left behind locally with an error message.
 
 ## Validation
 

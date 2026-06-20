@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { AuthProvider } from '../auth/AuthContext';
+import { CartProvider } from '../cart/CartProvider';
 import App from '../App';
 import type { Product } from '../types';
 
@@ -11,7 +13,11 @@ const mockProducts: Product[] = [
 const renderAt = (path: string) =>
   render(
     <MemoryRouter initialEntries={[path]}>
-      <App />
+      <AuthProvider>
+        <CartProvider>
+          <App />
+        </CartProvider>
+      </AuthProvider>
     </MemoryRouter>,
   );
 

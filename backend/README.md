@@ -2,7 +2,7 @@
 
 Production-style Express API foundation for the Infinite Gadget Loop ecommerce project.
 
-This milestone includes the backend shell, health endpoint, Prisma/PostgreSQL database foundation, product catalog API, and JWT-based user identity foundation. Cart persistence, orders, payments, and admin workflows will be added in later milestones.
+This milestone includes the backend shell, health endpoint, Prisma/PostgreSQL database foundation, product catalog API, JWT-based user identity foundation, and authenticated user-feature persistence for wishlist, compare, and recently viewed products. Cart persistence, orders, payments, and admin workflows will be added in later milestones.
 
 ## Requirements
 
@@ -33,6 +33,9 @@ Variables:
 - `FRONTEND_URL`: allowed browser origin for CORS, usually `http://localhost:5173`.
 - `JWT_SECRET`: signing secret for access tokens. Use at least 32 characters and never commit production secrets.
 - `JWT_EXPIRES_IN`: access token lifetime, for example `1h` or `15m`.
+- `COMPARE_MAX_ITEMS`: maximum compare products allowed per signed-in user.
+- `RECENTLY_VIEWED_LIMIT`: maximum stored recently viewed products per signed-in user.
+- `CART_MAX_QUANTITY_PER_ITEM`: maximum per-product quantity accepted by the cart API.
 
 ## Commands
 
@@ -185,6 +188,89 @@ Authentication notes:
 - Logout is currently stateless because refresh tokens and server-side sessions are out of scope for this milestone.
 - The frontend stores the access token in localStorage for the portfolio foundation. A production deployment should move session storage to secure, httpOnly cookies before handling sensitive account data.
 
+User features:
+
+```bash
+curl http://localhost:5000/api/v1/users/me/wishlist \
+  -H "Authorization: Bearer <access-token>"
+```
+
+```bash
+curl -X POST http://localhost:5000/api/v1/users/me/wishlist/<product-id> \
+  -H "Authorization: Bearer <access-token>"
+```
+
+```bash
+curl -X DELETE http://localhost:5000/api/v1/users/me/wishlist/<product-id> \
+  -H "Authorization: Bearer <access-token>"
+```
+
+```bash
+curl http://localhost:5000/api/v1/users/me/compare \
+  -H "Authorization: Bearer <access-token>"
+```
+
+```bash
+curl -X POST http://localhost:5000/api/v1/users/me/compare/<product-id> \
+  -H "Authorization: Bearer <access-token>"
+```
+
+```bash
+curl http://localhost:5000/api/v1/users/me/recently-viewed \
+  -H "Authorization: Bearer <access-token>"
+```
+
+```bash
+curl -X POST http://localhost:5000/api/v1/users/me/recently-viewed/<product-id> \
+  -H "Authorization: Bearer <access-token>"
+```
+
+User feature notes:
+
+- Wishlist and compare prevent duplicates.
+- Compare respects `COMPARE_MAX_ITEMS`.
+- Recently viewed keeps the newest products first and trims older items to `RECENTLY_VIEWED_LIMIT`.
+- Guest browser data still exists on the frontend and can be imported into a signed-in account after login.
+
+Cart:
+
+```bash
+curl http://localhost:5000/api/v1/cart \
+  -H "Authorization: Bearer <access-token>"
+```
+
+```bash
+curl -X POST http://localhost:5000/api/v1/cart/items \
+  -H "Authorization: Bearer <access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"productId":"pixel-8-pro","quantity":1}'
+```
+
+```bash
+curl -X PATCH http://localhost:5000/api/v1/cart/items/pixel-8-pro \
+  -H "Authorization: Bearer <access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"quantity":2}'
+```
+
+```bash
+curl -X DELETE http://localhost:5000/api/v1/cart/items/pixel-8-pro \
+  -H "Authorization: Bearer <access-token>"
+```
+
+```bash
+curl -X DELETE http://localhost:5000/api/v1/cart \
+  -H "Authorization: Bearer <access-token>"
+```
+
+Cart notes:
+
+- One active cart exists per user.
+- Product pricing always comes from the backend catalog, never from frontend input.
+- Inventory is checked for every add and quantity update.
+- The cart API returns full product details, line subtotals, cart subtotal, and item count.
+- Guest carts remain local until sign-in, then the frontend can merge them into the authenticated cart.
+
 ## Architecture
 
 - `src/app.ts`: Express initialization, middleware, routes, error handling.
@@ -199,6 +285,8 @@ Authentication notes:
 - `src/utils`: shared API response helpers and async route wrapper.
 - `src/types`: shared API response types.
 - `src/auth`: authentication controller, service, repository, validators, token helpers, and auth middleware.
+- `src/userFeatures`: authenticated wishlist, compare, and recently viewed controllers, services, repositories, validators, and routes.
+- `src/cart`: authenticated cart controllers, services, repositories, validators, and routes.
 - `prisma/schema.prisma`: database schema.
 - `prisma/seed.ts`: seed script for reference data.
 - `docs/catalog-migration.md`: frontend-to-database product migration mapping.

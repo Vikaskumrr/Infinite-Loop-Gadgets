@@ -4,7 +4,7 @@ import { categoryRepository } from '../repositories/categoryRepository.js';
 import type { ProductListQuery } from '../validators/productValidators.js';
 import { slugify } from '../utils/slug.js';
 
-interface FrontendProductDto {
+export interface FrontendProductDto {
   id: string;
   slug: string;
   name: string;
@@ -87,7 +87,7 @@ const availabilityFromInventory = (product: ProductWithRelations): FrontendProdu
   return 'available';
 };
 
-const toProductDto = (product: ProductWithRelations): FrontendProductDto => {
+export const toProductDto = (product: ProductWithRelations): FrontendProductDto => {
   const images = metadataObject(product.images);
   const metadata = metadataObject(product.specifications).metadata as Record<string, unknown> | undefined;
   const specifications = metadataObject(product.specifications).specifications as Prisma.JsonValue | undefined;

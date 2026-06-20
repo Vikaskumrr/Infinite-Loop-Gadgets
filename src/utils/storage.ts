@@ -10,3 +10,7 @@ export const readStoredJson = <T,>(key: string, fallback: T): T => {
 export const writeStoredJson = <T,>(key: string, value: T): void => {
   localStorage.setItem(key, JSON.stringify(value));
 };
+
+export const removeStoredItem = (key: string): void => {
+  localStorage.removeItem(key);
+};
