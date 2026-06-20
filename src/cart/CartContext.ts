@@ -12,6 +12,7 @@ export interface CartContextValue {
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
   removeItem: (productId: string) => Promise<void>;
   clearCart: () => Promise<void>;
+  refreshCart: () => Promise<void>;
   expandedProducts: Product[];
   cartMigrationPrompt: {
     open: boolean;

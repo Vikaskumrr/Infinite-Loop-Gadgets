@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Product from '../Products/Products';
 import ArrowNav from '../ArrowNavigation/ArrowNavigation';
 import ProductDetails from '../ProductDetails/ProductDetails';
-import Checkout from '../Checkout/Checkout';
 import Footer from '../Footer/Footer';
 import Loader from '../Loader/Loader';
 import ChatboxAssistant from '../ChatboxAssistant/ChatboxAssistant';
@@ -10,7 +10,7 @@ import ProductCard from '../ProductCard/ProductCard';
 import RetryState from '../RetryState/RetryState';
 import { useProducts } from '../../hooks/useProducts';
 import { categories, slugify } from '../../data/categories';
-import type { LanguageCode, Order, Product as ProductType, SortOption } from '../../types';
+import type { LanguageCode, Product as ProductType, SortOption } from '../../types';
 import './HomePage.scss';
 
 interface HomePageProps {
@@ -20,7 +20,6 @@ interface HomePageProps {
   onAddBundle: (products: ProductType[]) => Promise<void> | void;
   searchTerm: string;
   sortOption: SortOption;
-  onOrderPlaced?: (order: Order) => void;
 }
 
 const HomePage: React.FC<HomePageProps> = ({
@@ -30,12 +29,10 @@ const HomePage: React.FC<HomePageProps> = ({
   onAddBundle,
   searchTerm,
   sortOption,
-  onOrderPlaced,
 }) => {
+  const navigate = useNavigate();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [checkoutItems, setCheckoutItems] = useState<ProductType[]>([]);
   const { filteredProducts, loading, error, retry } = useProducts(searchTerm, sortOption);
 
   useEffect(() => {
@@ -60,20 +57,11 @@ const HomePage: React.FC<HomePageProps> = ({
     setIsDetailsOpen(false);
   };
 
-  const handleOpenCheckout = (items: ProductType[]) => {
-    setCheckoutItems(items);
-    setIsCheckoutOpen(true);
+  const handleBuyNow = async (product: ProductType) => {
+    await onAddToCart(product, 1);
     setIsDetailsOpen(false);
     onCloseCart();
-  };
-
-  const handleCloseCheckout = () => {
-    setIsCheckoutOpen(false);
-    setCheckoutItems([]);
-  };
-
-  const handleBuyNow = (product: ProductType) => {
-    handleOpenCheckout([product]);
+    navigate('/checkout/review');
   };
 
   if (loading) {
@@ -136,14 +124,6 @@ const HomePage: React.FC<HomePageProps> = ({
           onAddToCart={(product) => void onAddToCart(product, 1)}
           onBuyNow={handleBuyNow}
           language={language}
-        />
-      )}
-      {isCheckoutOpen && (
-        <Checkout
-          products={checkoutItems}
-          onClose={handleCloseCheckout}
-          language={language}
-          onOrderPlaced={onOrderPlaced}
         />
       )}
       <section className="storefront-section">

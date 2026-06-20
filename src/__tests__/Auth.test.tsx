@@ -33,7 +33,7 @@ describe('authentication UI', () => {
   test('loads persisted auth state', () => {
     localStorage.setItem('ilg.auth', JSON.stringify({
       token: 'token',
-      user: { id: 'u1', name: 'Ada', email: 'ada@example.com' },
+      user: { id: 'u1', name: 'Ada', email: 'ada@example.com', role: 'CUSTOMER' },
     }));
 
     render(

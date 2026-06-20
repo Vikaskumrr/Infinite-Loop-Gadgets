@@ -1,6 +1,6 @@
 # Infinite Loop Gadgets
 
-Infinite Loop Gadgets is a Vite + React + TypeScript ecommerce storefront for browsing premium tech products, viewing product details, managing a guest or signed-in cart, placing demo orders, and syncing account-backed wishlist, compare, and recently viewed data.
+Infinite Loop Gadgets is a Vite + React + TypeScript ecommerce storefront for browsing premium tech products, viewing product details, managing a guest or signed-in cart, placing authenticated demo orders, syncing account-backed wishlist, compare, and recently viewed data, and operating a lightweight internal commerce admin console.
 
 ## Tech Stack
 
@@ -58,7 +58,7 @@ VITE_API_URL=http://localhost:5000/api/v1
 ## Routes
 
 - `/` - Product storefront
-- `/account` - Local anonymous profile and order history
+- `/account` - Profile editing plus authenticated order history
 - `/about` - About page
 - `/products` - Category product browsing, optionally filtered with `?category=smartphones`
 - `/login` - Sign in
@@ -66,8 +66,17 @@ VITE_API_URL=http://localhost:5000/api/v1
 - `/wishlist` - Saved products
 - `/compare` - Compare shortlist
 - `/recently-viewed` - Browsing history
+- `/admin` - Admin dashboard for commerce operations
 
-The backend now provides product, authentication, wishlist, compare, and recently viewed APIs. Cart, checkout, orders, and account profile editing remain frontend-local/demo flows for now.
+The backend now provides product, authentication, wishlist, compare, recently viewed, cart, checkout, and order APIs. Profile editing remains browser-local for now, while order history is account-backed.
+
+## Admin Platform
+
+- Admin access is role-based. Users default to `CUSTOMER`; admin users must have `role = ADMIN` in the backend database.
+- `/admin/products` manages catalog records.
+- `/admin/inventory` manages stock and availability.
+- `/admin/orders` manages order lifecycle progression.
+- Frontend admin routes are protected, but backend RBAC is the real source of truth.
 
 Guest browsing data in `localStorage` can be imported into a signed-in account after login. Guest cart items can also be merged into the authenticated cart, with backend inventory validation during import.
 
@@ -77,6 +86,14 @@ Guest browsing data in `localStorage` can be imported into a signed-in account a
 - Signed-in users use the authenticated `/api/v1/cart` backend cart.
 - The frontend `CartProvider` chooses the correct source automatically and exposes a single `useCart()` interface to components.
 - When a user signs in and a guest cart exists, the app offers to import it into the account cart. Duplicate products merge by quantity and unavailable items are left behind locally with an error message.
+
+## Checkout And Orders
+
+- Checkout requires authentication and uses the persistent backend cart as the single source of truth.
+- `POST /api/v1/orders/checkout` validates that the cart exists, contains items, and still has sufficient inventory.
+- The backend creates an order, snapshots item pricing, deducts inventory, and clears the cart in one transaction.
+- Order history is visible on `/account` for signed-in users.
+- Supported lifecycle values are `payment_pending`, `confirmed`, `processing`, `shipped`, `delivered`, and `cancelled`.
 
 ## Validation
 

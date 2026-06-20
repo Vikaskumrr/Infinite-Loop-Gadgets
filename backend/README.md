@@ -2,7 +2,7 @@
 
 Production-style Express API foundation for the Infinite Gadget Loop ecommerce project.
 
-This milestone includes the backend shell, health endpoint, Prisma/PostgreSQL database foundation, product catalog API, JWT-based user identity foundation, and authenticated user-feature persistence for wishlist, compare, and recently viewed products. Cart persistence, orders, payments, and admin workflows will be added in later milestones.
+This milestone includes the backend shell, health endpoint, Prisma/PostgreSQL database foundation, product catalog API, JWT-based user identity foundation, authenticated user-feature persistence for wishlist, compare, and recently viewed products, persistent cart APIs, authenticated order creation with inventory deduction, and an RBAC-protected admin commerce module. Payments remain out of scope.
 
 ## Requirements
 
@@ -187,6 +187,7 @@ Authentication notes:
 - JWTs contain only the user id and expire according to `JWT_EXPIRES_IN`.
 - Logout is currently stateless because refresh tokens and server-side sessions are out of scope for this milestone.
 - The frontend stores the access token in localStorage for the portfolio foundation. A production deployment should move session storage to secure, httpOnly cookies before handling sensitive account data.
+- Admin access is enforced server-side through the `User.role` column and the `requireAdmin` middleware. Frontend route protection is only a UX layer on top.
 
 User features:
 
@@ -257,6 +258,69 @@ curl -X PATCH http://localhost:5000/api/v1/cart/items/pixel-8-pro \
 curl -X DELETE http://localhost:5000/api/v1/cart/items/pixel-8-pro \
   -H "Authorization: Bearer <access-token>"
 ```
+
+Orders:
+
+```bash
+curl http://localhost:5000/api/v1/orders \
+  -H "Authorization: Bearer <access-token>"
+```
+
+```bash
+curl http://localhost:5000/api/v1/orders/<order-id> \
+  -H "Authorization: Bearer <access-token>"
+```
+
+```bash
+curl -X POST http://localhost:5000/api/v1/orders/checkout \
+  -H "Authorization: Bearer <access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"ada@example.com","fullName":"Ada Lovelace","shippingAddress":"12 Loop Street","paymentMethod":"Demo card ending 4242"}'
+```
+
+Order notes:
+
+- Checkout always recalculates totals from the backend catalog and ignores any frontend price assumptions.
+- Inventory deduction, order creation, and cart clearing run inside one database transaction.
+- Order items store a price snapshot so future product price changes do not rewrite old orders.
+- Supported order lifecycle values are `PAYMENT_PENDING`, `CONFIRMED`, `PROCESSING`, `SHIPPED`, `DELIVERED`, and `CANCELLED`.
+
+Admin:
+
+```bash
+curl http://localhost:5000/api/v1/admin/dashboard \
+  -H "Authorization: Bearer <admin-access-token>"
+```
+
+```bash
+curl http://localhost:5000/api/v1/admin/products \
+  -H "Authorization: Bearer <admin-access-token>"
+```
+
+```bash
+curl -X POST http://localhost:5000/api/v1/admin/products \
+  -H "Authorization: Bearer <admin-access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Loop Phone Ultra","description":"Flagship demo phone","price":99999,"brand":"Infinite","category":"Phones","images":["https://example.com/phone.png"],"specifications":{"Display":"OLED"},"features":["AI camera"],"availabilityStatus":"IN_STOCK","stockQuantity":12}'
+```
+
+```bash
+curl http://localhost:5000/api/v1/admin/inventory \
+  -H "Authorization: Bearer <admin-access-token>"
+```
+
+```bash
+curl -X PATCH http://localhost:5000/api/v1/admin/orders/<order-id>/status \
+  -H "Authorization: Bearer <admin-access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"status":"PROCESSING"}'
+```
+
+Admin notes:
+
+- `User.role` defaults to `CUSTOMER`; promote an account to `ADMIN` directly in PostgreSQL or Prisma Studio for local setup.
+- Admin product writes validate required fields, enforce unique slugs, and upsert inventory together with catalog changes.
+- Admin order transitions allow `CONFIRMED -> PROCESSING -> SHIPPED -> DELIVERED`, plus `any -> CANCELLED`.
 
 ```bash
 curl -X DELETE http://localhost:5000/api/v1/cart \

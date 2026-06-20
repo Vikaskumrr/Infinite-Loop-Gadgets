@@ -2,21 +2,23 @@ import React, { useState } from 'react';
 import './Checkout.scss';
 import { useEscapeKey } from '../../hooks/useEscapeKey';
 import OptimizedImage from '../OptimizedImage/OptimizedImage';
-import type { LanguageCode, Product, TranslationMap } from '../../types';
-import type { Order } from '../../types';
+import type { LanguageCode, Order, TranslationMap } from '../../types';
+import type { CartItem } from '../../cart/types';
+import type { CheckoutPayload } from '../../orders/types';
 
 interface CheckoutProps {
-  products: Product[];
+  cartItems: CartItem[];
   onClose: () => void;
   language: LanguageCode;
-  onOrderPlaced?: (order: Order) => void;
+  onSubmitOrder?: (payload: CheckoutPayload) => Promise<Order>;
   presentation?: 'modal' | 'page';
   currentStep?: string;
 }
 
-const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrderPlaced, presentation = 'modal', currentStep = 'review' }) => {
-  const [isOrderPlaced, setIsOrderPlaced] = useState(false);
+const Checkout: React.FC<CheckoutProps> = ({ cartItems, onClose, language, onSubmitOrder, presentation = 'modal', currentStep = 'review' }) => {
+  const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   useEscapeKey(onClose);
 
   const translations: TranslationMap<'checkoutTitle' | 'thankYou' | 'orderSummary' | 'total' | 'close' | 'placeOrder' | 'cancel'> = {
@@ -53,24 +55,34 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrde
     return (translations[language] && translations[language][key]) || translations.en[key];
   };
 
-  const calculateTotal = () => {
-    return products.reduce((acc, item) => acc + item.price, 0);
-  };
+  const calculateTotal = () => cartItems.reduce((acc, item) => acc + item.subtotal, 0);
   const steps = ['contact', 'shipping', 'payment', 'review'];
+  const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [shippingAddress, setShippingAddress] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [couponCode, setCouponCode] = useState('');
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     setIsProcessing(true);
-    onOrderPlaced?.({
-      id: `ILG-${Date.now().toString(36).toUpperCase()}`,
-      items: products,
-      total: calculateTotal(),
-      createdAt: new Date().toISOString(),
-      status: 'placed',
-    });
-    window.setTimeout(() => {
+    setError(null);
+    try {
+      const payload: CheckoutPayload = {
+        email,
+        fullName,
+        shippingAddress,
+        paymentMethod,
+        couponCode,
+      };
+      const order = await onSubmitOrder?.(payload);
+      if (order) {
+        setPlacedOrder(order);
+      }
+    } catch (caughtError) {
+      setError(caughtError instanceof Error ? caughtError.message : 'Unable to place order.');
+    } finally {
       setIsProcessing(false);
-      setIsOrderPlaced(true);
-    }, 450);
+    }
   };
 
   const content = (
@@ -88,53 +100,56 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrde
             ))}
           </nav>
         )}
-        {isOrderPlaced ? (
-          <p className="thank-you-message">{getText('thankYou')}</p>
+        {placedOrder ? (
+          <div className="thank-you-message">
+            <p>{getText('thankYou')}</p>
+            <p>Order {placedOrder.id} is now {placedOrder.status.replace('_', ' ')}.</p>
+          </div>
         ) : (
           <div className="checkout-layout">
             <section className="checkout-form" aria-label="Checkout information">
               <div className={`checkout-step-panel ${currentStep === 'contact' ? 'active' : ''}`}>
               <div className="checkout-field">
                 <label htmlFor="checkout-email">Email</label>
-                <input id="checkout-email" type="email" placeholder="you@example.com" autoComplete="email" />
+                <input id="checkout-email" type="email" placeholder="you@example.com" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} />
               </div>
               <div className="checkout-field">
                 <label htmlFor="checkout-name">Full name</label>
-                <input id="checkout-name" type="text" placeholder="Guest Shopper" autoComplete="name" />
+                <input id="checkout-name" type="text" placeholder="Guest Shopper" autoComplete="name" value={fullName} onChange={(event) => setFullName(event.target.value)} />
               </div>
               </div>
               <div className={`checkout-step-panel ${currentStep === 'shipping' ? 'active' : ''}`}>
                 <div className="checkout-field">
                   <label htmlFor="checkout-address">Shipping address</label>
-                  <input id="checkout-address" type="text" placeholder="Apartment, street, city" autoComplete="street-address" />
+                  <input id="checkout-address" type="text" placeholder="Apartment, street, city" autoComplete="street-address" value={shippingAddress} onChange={(event) => setShippingAddress(event.target.value)} />
                 </div>
               </div>
               <div className={`checkout-step-panel ${currentStep === 'payment' ? 'active' : ''}`}>
                 <div className="checkout-field">
                   <label htmlFor="checkout-payment">Payment method</label>
-                  <input id="checkout-payment" type="text" placeholder="Demo card ending 4242" />
+                  <input id="checkout-payment" type="text" placeholder="Demo card ending 4242" value={paymentMethod} onChange={(event) => setPaymentMethod(event.target.value)} />
                 </div>
               </div>
               <div className={`checkout-step-panel ${currentStep === 'review' ? 'active' : ''}`}>
               <div className="coupon-row">
                 <label htmlFor="coupon-code">Coupon</label>
                 <div>
-                  <input id="coupon-code" type="text" placeholder="SAVE10" />
+                  <input id="coupon-code" type="text" placeholder="SAVE10" value={couponCode} onChange={(event) => setCouponCode(event.target.value)} />
                   <button type="button">Apply Coupon</button>
                 </div>
               </div>
-              <p className="checkout-trust">Secure demo checkout. Your cart is safe and no real payment is processed.</p>
+              <p className="checkout-trust">Checkout validates live inventory and stores an order snapshot. No real payment is processed in this demo.</p>
               </div>
             </section>
             <div className="order-summary">
               <h4>{getText('orderSummary')}</h4>
               <ul className="order-items-list">
-                {products.map((item, index) => (
-                  <li key={index} className="order-item">
-                    <OptimizedImage src={item.productImage} alt={item.name} className="order-item-image" sizes="56px" />
+                {cartItems.map((item) => (
+                  <li key={item.productId} className="order-item">
+                    <OptimizedImage src={item.product.productImage} alt={item.product.name} className="order-item-image" sizes="56px" />
                     <div className="order-item-info">
-                      <span className="order-item-name">{item.name}</span>
-                      <span className="order-item-price">₹{item.price.toFixed(2)}</span>
+                      <span className="order-item-name">{item.product.name}</span>
+                      <span className="order-item-price">{item.quantity} x ₹{item.unitPrice.toFixed(2)}</span>
                     </div>
                   </li>
                 ))}
@@ -145,6 +160,7 @@ const Checkout: React.FC<CheckoutProps> = ({ products, onClose, language, onOrde
               </div>
             </div>
             <div className="checkout-buttons">
+              {error ? <p className="checkout-error" role="alert">{error}</p> : null}
               <button className="btn-primary" onClick={handlePlaceOrder} disabled={isProcessing} aria-busy={isProcessing}>
                 {isProcessing ? 'Processing...' : getText('placeOrder')}
               </button>

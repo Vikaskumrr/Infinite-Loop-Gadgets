@@ -72,7 +72,7 @@ describe('CartProvider', () => {
     });
 
     renderWithAuth({
-      user: { id: 'user-1', name: 'Ada', email: 'ada@example.com' },
+      user: { id: 'user-1', name: 'Ada', email: 'ada@example.com', role: 'CUSTOMER' },
       token: 'session-token',
       loading: false,
       login: vi.fn(),
@@ -94,7 +94,7 @@ describe('CartProvider', () => {
     });
 
     renderWithAuth({
-      user: { id: 'user-1', name: 'Ada', email: 'ada@example.com' },
+      user: { id: 'user-1', name: 'Ada', email: 'ada@example.com', role: 'CUSTOMER' },
       token: 'session-token',
       loading: false,
       login: vi.fn(),
