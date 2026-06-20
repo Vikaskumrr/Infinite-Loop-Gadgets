@@ -6,6 +6,7 @@ import { adminController } from './adminController.js';
 
 export const adminRouter = Router();
 
+adminRouter.use(createAuthenticatedRateLimit(200, 'Too many admin authentication attempts. Please pause and try again shortly.'));
 adminRouter.use(requireAuth);
 adminRouter.use(requireAdmin);
 adminRouter.use(createAuthenticatedRateLimit(80, 'Too many admin requests. Please pause and try again shortly.'));
